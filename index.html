@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#c2412d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Japanese">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+html{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);color-scheme:light}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0}[hidden]{display:none!important}
+</style>
+<title>Mo's Japanese Phrasebook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&family=Zen+Maru+Gothic:wght@500;700&family=Figtree:wght@400;600;700&display=swap">
+<style>
+/* Layout: one-screen phone app. Top bar, scrolling view, fixed bottom tabs (Lessons · Phrasebook · Practice) */
+:root {
+  --bg: #f6f7f4; --card: #ffffff; --fg: #1d2420; --muted: #5d6862;
+  --line: #dde2dc; --accent: #c2412d; --accent-fg: #ffffff; --accent-soft: #f7e5e0; --ok: #2f7a4f;
+  --f-jp: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --f-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
+  --f-body: "Figtree", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #141815; --card: #1c221e; --fg: #e9ede8; --muted: #9ba6a0;
+  --line: #2d3530; --accent: #ef7a63; --accent-fg: #1a0f0c; --accent-soft: #3a2420; --ok: #6cc596; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #141815; --card: #1c221e; --fg: #e9ede8; --muted: #9ba6a0;
+  --line: #2d3530; --accent: #ef7a63; --accent-fg: #1a0f0c; --accent-soft: #3a2420; --ok: #6cc596; color-scheme: dark }
+
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
+.app { height: 100%; display: flex; flex-direction: column; max-width: 560px; margin: 0 auto; }
+.top { padding: 14px 16px 10px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.top h1 { font-family: var(--f-display); font-size: 1.2rem; margin: 0; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.top h1 .kana { color: var(--accent); margin-right: 6px; }
+.back { border: 0; background: var(--card); color: var(--fg); width: 36px; height: 36px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; border: 1px solid var(--line); }
+.speed { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--card); flex: none; }
+.speed button { border: 0; background: transparent; color: var(--fg); font: 600 0.78rem var(--f-body); padding: 6px 11px; cursor: pointer; }
+.speed button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+main { flex: 1; overflow-y: auto; padding: 16px 16px 24px; display: flex; flex-direction: column; gap: 18px; -webkit-overflow-scrolling: touch; }
+.tabs { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); background: var(--card); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.tabs button { border: 0; background: transparent; color: var(--muted); font: 600 0.75rem var(--f-body); padding: 9px 4px 10px; display: grid; justify-items: center; gap: 2px; cursor: pointer; }
+.tabs button .g { font-family: var(--f-jp); font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
+.tabs button[aria-current="true"] { color: var(--accent); }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.warn { background: var(--accent-soft); border-radius: 12px; padding: 10px 14px; font-size: 0.88rem; }
+.label { font: 700 0.72rem var(--f-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+h2 { font-family: var(--f-display); font-size: 1.15rem; margin: 0; text-wrap: balance; }
+h3 { font-family: var(--f-display); font-size: 1rem; margin: 0 0 8px; }
+.muted { color: var(--muted); }
+
+/* Lesson list */
+.lesson-card { display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center; text-align: left; width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; color: var(--fg); font: inherit; cursor: pointer; }
+.lesson-card .num { width: 56px; height: 56px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-family: var(--f-jp); font-size: 1.5rem; font-weight: 700; }
+.lesson-card .t { font-weight: 700; font-size: 1rem; }
+.lesson-card .s { color: var(--muted); font-size: 0.85rem; }
+.lesson-card .chev { color: var(--muted); font-size: 1.2rem; }
+.lesson-card.locked { opacity: 0.55; cursor: default; }
+.lesson-card > div { min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 10px; }
+
+/* Word rows */
+.list { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.row { display: grid; grid-template-columns: 44px 1fr 32px; gap: 12px; align-items: center; padding: 11px 12px; border-top: 1px solid var(--line); }
+.row:first-child { border-top: 0; }
+.row > div { min-width: 0; }
+.play { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; display: grid; place-items: center; }
+.play.on { background: var(--accent); color: var(--accent-fg); }
+.star { border: 0; background: transparent; color: var(--line); font-size: 1.25rem; cursor: pointer; padding: 0; width: 32px; height: 32px; }
+.star[aria-pressed="true"] { color: #e0a526; }
+.jp { font-family: var(--f-jp); font-size: 1.25rem; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.ro { color: var(--accent); font-weight: 600; font-style: italic; }
+.en { color: var(--muted); font-size: 0.88rem; }
+.meta { display: flex; flex-wrap: wrap; column-gap: 8px; }
+
+/* Notes */
+.note-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+.note-card p { margin: 0 0 8px; }
+.note-card p:last-child { margin-bottom: 0; }
+.note-card ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.note-card b { color: var(--fg); }
+.intro { font-size: 0.95rem; color: var(--muted); margin: 4px 0 0; }
+.who { font: 700 0.7rem var(--f-body); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+
+/* Phrasebook */
+.search { width: 100%; box-sizing: border-box; border: 1px solid var(--line); background: var(--card); color: var(--fg); font: 1rem var(--f-body); border-radius: 12px; padding: 11px 14px; }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+.chip { flex: none; border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: 999px; padding: 6px 12px; font: 600 0.8rem var(--f-body); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.empty { text-align: center; color: var(--muted); padding: 30px 10px; }
+
+/* Practice */
+.deck-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.flash { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 28px 18px; min-height: 240px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; cursor: pointer; }
+.flash .big { font-family: var(--f-jp); font-size: 2.2rem; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+.flash .hint { color: var(--muted); font-size: 0.85rem; }
+.answer { display: grid; gap: 4px; }
+.answer .ro { font-size: 1.1rem; }
+.btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn { border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: 14px; padding: 13px; font: 700 0.95rem var(--f-body); cursor: pointer; }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.btn.good { background: var(--ok); color: var(--bg); border-color: var(--ok); }
+.progress { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--accent); transition: width .25s; }
+.count { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <button class="back" id="backBtn" aria-label="Back" hidden>‹</button>
+    <h1 id="title"><span class="kana">日本語</span>Phrasebook</h1>
+    <div class="speed" role="group" aria-label="Speaking speed">
+      <button id="sp-slow" data-rate="0.6" aria-pressed="true">Slow</button>
+      <button id="sp-norm" data-rate="0.95" aria-pressed="false">Normal</button>
+    </div>
+  </header>
+  <main id="view"></main>
+  <nav class="tabs" aria-label="Sections">
+    <button id="tab-lessons" data-tab="lessons" aria-current="true"><span class="g">課</span>Lessons</button>
+    <button id="tab-book" data-tab="book" aria-current="false"><span class="g">語</span>Phrasebook</button>
+    <button id="tab-practice" data-tab="practice" aria-current="false"><span class="g">練</span>Practice</button>
+  </nav>
+</div>
+
+<script>
+/* ---------- Content ---------- */
+const LESSONS = [
+  { id: "l1", kana: "あ", title: "The five vowels", sub: "Hiragana basics and first words",
+    intro: "Japanese has three writing systems. Everyone starts with hiragana, and the first five characters are the vowels. Every other hiragana is a consonant plus one of these.",
+    blocks: [
+      { type: "words", title: "Vowels", items: [
+        ["あ","a","like Tagalog a"],["い","i","like Tagalog i"],["う","u","like Tagalog u"],
+        ["え","e","like Tagalog e"],["お","o","like Tagalog o"] ]},
+      { type: "note", title: "Sounds like Tagalog", html: "<p>Japanese vowels are short and pure, like the vowels in <i>aso</i>, <i>ito</i>, <i>upo</i>, <i>eto</i> and <i>oo</i>. If you speak Tagalog, you already have them.</p><p>The pattern continues: か ka, き ki, く ku, け ke, こ ko.</p>" },
+      { type: "words", title: "First words", items: [
+        ["あい","ai","love"],["いえ","ie","house"],
+        ["こんにちは","konnichiwa","hello / good afternoon"],["ありがとう","arigatō","thank you"] ]},
+      { type: "note", title: "Long vowels", html: "<p>A line over a vowel, like the ō in <i>arigatō</i>, means you hold that vowel a little longer.</p>" }
+    ]},
+  { id: "l2", kana: "す", title: "Survival phrases", sub: "Asking, thanking, getting help",
+    intro: "Phrases you'll use every day in Japan, from getting someone's attention to asking where things are.",
+    blocks: [
+      { type: "words", title: "Everyday phrases", items: [
+        ["すみません","sumimasen","excuse me / sorry"],["ありがとうございます","arigatō gozaimasu","thank you (polite)"],
+        ["はい","hai","yes"],["いいえ","iie","no"],
+        ["わかりません","wakarimasen","I don't understand"],["えいごはだいじょうぶですか","eigo wa daijōbu desu ka","is English okay?"] ]},
+      { type: "words", title: "Asking where and how much", items: [
+        ["トイレはどこですか","toire wa doko desu ka","where is the toilet?"],
+        ["えきはどこですか","eki wa doko desu ka","where is the station?"],
+        ["これをください","kore o kudasai","this one, please"],["いくらですか","ikura desu ka","how much is it?"] ]},
+      { type: "note", title: "Speaking tips", html: "<ul><li><b>Sumimasen is your most useful word.</b> Use it to start a question, get past people, or call a waiter.</li><li><b>Desu ka makes a question.</b> It works like <i>po ba</i> in Tagalog.</li><li><b>Say the final u lightly.</b> <i>Desu</i> sounds like “dess”.</li><li><b>Where is ~?</b> Put a place before <i>wa doko desu ka</i>.</li></ul>" },
+      { type: "dialog", title: "Practice dialogue", items: [
+        ["You","すみません。トイレはどこですか","Sumimasen. Toire wa doko desu ka?"],
+        ["You","ありがとうございます","Arigatō gozaimasu!"] ]}
+    ]},
+  { id: "l3", kana: "食", title: "Ordering food", sub: "Restaurants, counting, table manners",
+    intro: "Everything you need from walking in to paying the bill.",
+    blocks: [
+      { type: "words", title: "Walking in", items: [
+        ["いらっしゃいませ","irasshaimase","welcome (you'll hear this)"],["なんめいさまですか","nanmei-sama desu ka","how many people?"],
+        ["ひとりです","hitori desu","one person"],["ふたりです","futari desu","two people"],
+        ["さんにんです","san-nin desu","three people"],["よにんです","yo-nin desu","four people"] ]},
+      { type: "words", title: "Ordering", items: [
+        ["おすすめはなんですか","osusume wa nan desu ka","what do you recommend?"],
+        ["これをふたつください","kore o futatsu kudasai","two of these, please"],
+        ["みず、おねがいします","mizu, onegaishimasu","water, please"],
+        ["おかいけい、おねがいします","okaikei, onegaishimasu","the bill, please"] ]},
+      { type: "words", title: "Counting things", items: [
+        ["ひとつ","hitotsu","one (thing)"],["ふたつ","futatsu","two"],["みっつ","mittsu","three"],["よっつ","yottsu","four"] ]},
+      { type: "words", title: "At the table", items: [
+        ["いただきます","itadakimasu","said before eating"],["ごちそうさまでした","gochisōsama deshita","said after the meal"] ]},
+      { type: "note", title: "Table manners", html: "<ul><li><b>Don't tip.</b> Staff may chase you to return the money.</li><li><b>Pay at the register</b> near the door, not at the table.</li><li><b>No need to reply to irasshaimase.</b> A nod or smile is enough.</li></ul>" },
+      { type: "note", title: "Grammar: wa or o?", html: "<p><b>は (wa)</b> marks the topic you're talking about. <b>を (o)</b> marks the thing an action is done to.</p><ul><li><i>Kore <b>wa</b> ikura desu ka?</i> “As for this, how much is it?”</li><li><i>Kore <b>o</b> kudasai.</i> “Please give me this.”</li></ul><p>Tagalog shortcut: <b>wa</b> is like <i>ang</i>, <b>o</b> is like <i>ng</i> (<i>pahingi <b>ng</b> tubig</i> = <i>mizu <b>o</b> kudasai</i>).</p><p>The particle “wa” is written は and the particle “o” is written を.</p>" },
+      { type: "dialog", title: "Full restaurant visit", items: [
+        ["Staff","いらっしゃいませ！なんめいさまですか","Irasshaimase! Nanmei-sama desu ka?"],
+        ["You","ふたりです","Futari desu."],
+        ["You","すみません！おすすめはなんですか","Sumimasen! Osusume wa nan desu ka?"],
+        ["You","これをふたつください。みず、おねがいします","Kore o futatsu kudasai. Mizu, onegaishimasu."],
+        ["You","いただきます","Itadakimasu!"],
+        ["You","おかいけい、おねがいします","Okaikei, onegaishimasu."],
+        ["You","ごちそうさまでした","Gochisōsama deshita!"] ]}
+    ]}
+];
+const NEXT = { kana: "駅", title: "Trains and directions", sub: "Next lesson · ask your teacher" };
+
+const WORDS = [];
+LESSONS.forEach((L, li) => L.blocks.forEach(b => { if (b.type === "words") b.items.forEach(([jp, ro, en]) => WORDS.push({ jp, ro, en, lesson: li, group: b.title })); }));
+
+/* ---------- Storage (optional, per device) ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("jp-" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem("jp-" + k, JSON.stringify(v)); } catch (e) {} }
+};
+let stars = new Set(store.get("stars", []));
+let rate = store.get("rate", 0.6);
+
+/* ---------- Speech ---------- */
+const synth = window.speechSynthesis;
+let jaVoice = null, voicesChecked = false;
+function pickVoice() {
+  if (!synth) return;
+  const vs = synth.getVoices();
+  if (!vs.length) return;
+  voicesChecked = true;
+  jaVoice = vs.find(v => /^ja/i.test(v.lang) && /google|kyoko|otoya|natural/i.test(v.name)) || vs.find(v => /^ja/i.test(v.lang)) || null;
+  render();
+}
+if (synth) { pickVoice(); synth.onvoiceschanged = pickVoice; setTimeout(pickVoice, 800); }
+function say(text, btn) {
+  if (!synth) return;
+  synth.cancel();
+  document.querySelectorAll(".play.on").forEach(x => x.classList.remove("on"));
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "ja-JP"; u.rate = rate; if (jaVoice) u.voice = jaVoice;
+  if (btn) { btn.classList.add("on"); u.onend = u.onerror = () => btn.classList.remove("on"); }
+  synth.speak(u);
+}
+
+/* ---------- Helpers ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const PLAY = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>';
+const playBtn = (jp, ro) => `<button class="play" data-say="${esc(jp)}" aria-label="Play ${esc(ro)}">${PLAY}</button>`;
+const starBtn = jp => `<button class="star" data-star="${esc(jp)}" aria-pressed="${stars.has(jp)}" aria-label="Save ${esc(jp)}">★</button>`;
+const wordRow = (jp, ro, en) => `<div class="row">${playBtn(jp, ro)}<div><div class="jp" lang="ja">${jp}</div><div class="meta"><span class="ro">${ro}</span><span class="en">${en}</span></div></div>${starBtn(jp)}</div>`;
+const voiceWarn = () => (synth && voicesChecked && !jaVoice) || !synth
+  ? `<div class="warn">${!synth ? "This browser can't play speech. Try Chrome or Safari." : "Your phone has no Japanese voice installed, so audio may sound wrong. Add Japanese under Settings → Accessibility → Spoken Content (iPhone) or Text-to-speech (Android), then reopen this page."}</div>` : "";
+
+/* ---------- State ---------- */
+let tab = store.get("tab", "lessons");
+if (!["lessons", "book", "practice"].includes(tab)) tab = "lessons";
+let openLesson = null;
+let bookFilter = "all", bookQuery = "";
+let deck = null; // { cards, i, shown, known, mode }
+
+const view = document.getElementById("view");
+const titleEl = document.getElementById("title");
+const backBtn = document.getElementById("backBtn");
+
+function render() {
+  document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-current", b.dataset.tab === tab));
+  backBtn.hidden = !(tab === "lessons" && openLesson !== null) && !(tab === "practice" && deck);
+  if (tab === "lessons") openLesson === null ? renderLessonList() : renderLesson(openLesson);
+  if (tab === "book") renderBook();
+  if (tab === "practice") deck ? renderCard() : renderPracticeHome();
+}
+
+function setTitle(kana, text) { titleEl.innerHTML = `<span class="kana">${kana}</span>${esc(text)}`; }
+
+function renderLessonList() {
+  setTitle("日本語", "Phrasebook");
+  view.innerHTML = voiceWarn() +
+    `<div><div class="label">Goal: travel conversation</div><h2>Your lessons</h2></div><div class="stack">` +
+    LESSONS.map((L, i) => {
+      const n = L.blocks.filter(b => b.type === "words").reduce((a, b) => a + b.items.length, 0);
+      return `<button class="lesson-card" data-open="${i}"><span class="num" lang="ja">${L.kana}</span><div><div class="label">Lesson ${i + 1}</div><div class="t">${L.title}</div><div class="s">${L.sub} · ${n} words</div></div><span class="chev">›</span></button>`;
+    }).join("") +
+    `<div class="lesson-card locked"><span class="num" lang="ja">${NEXT.kana}</span><div><div class="label">Lesson ${LESSONS.length + 1}</div><div class="t">${NEXT.title}</div><div class="s">${NEXT.sub}</div></div><span class="chev">🔒</span></div>` +
+    `</div>`;
+  view.scrollTop = 0;
+}
+
+function renderLesson(i) {
+  const L = LESSONS[i];
+  setTitle(L.kana, "Lesson " + (i + 1));
+  view.innerHTML = voiceWarn() + `<div><div class="label">Lesson ${i + 1}</div><h2>${L.title}</h2><p class="intro">${L.intro}</p></div>` +
+    L.blocks.map(b => {
+      if (b.type === "words") return `<section><h3>${b.title}</h3><div class="list">${b.items.map(w => wordRow(...w)).join("")}</div></section>`;
+      if (b.type === "note") return `<section class="note-card"><h3>${b.title}</h3>${b.html}</section>`;
+      if (b.type === "dialog") return `<section><h3>${b.title}</h3><div class="list">${b.items.map(([who, jp, ro]) => `<div class="row" style="grid-template-columns:44px 1fr">${playBtn(jp, ro)}<div><div class="who">${who}</div><div class="jp" lang="ja">${jp}</div><div class="en">${ro}</div></div></div>`).join("")}</div></section>`;
+    }).join("") +
+    `<button class="btn primary" data-practice-lesson="${i}">Practice these words</button>`;
+  view.scrollTop = 0;
+}
+
+function renderBook() {
+  setTitle("語", "Phrasebook");
+  const q = bookQuery.trim().toLowerCase();
+  const list = WORDS.filter(w =>
+    (bookFilter === "all" || (bookFilter === "star" ? stars.has(w.jp) : w.lesson === +bookFilter)) &&
+    (!q || (w.jp + " " + w.ro + " " + w.en).toLowerCase().includes(q) || w.ro.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().includes(q)));
+  const chips = [["all", "All " + WORDS.length], ["star", "★ Saved " + stars.size], ...LESSONS.map((L, i) => [String(i), "L" + (i + 1) + " " + L.title])];
+  const html = `<input class="search" id="q" type="search" placeholder="Search English, romaji or kana" value="${esc(bookQuery)}" autocomplete="off">` +
+    `<div class="chips">${chips.map(([k, t]) => `<button class="chip" data-filter="${k}" aria-pressed="${bookFilter === k}">${t}</button>`).join("")}</div>` +
+    (list.length ? `<div class="list">${list.map(w => wordRow(w.jp, w.ro, w.en)).join("")}</div>`
+      : `<div class="empty">${bookFilter === "star" && !stars.size ? "Tap ★ on any word to save it here." : "No words match that search."}</div>`);
+  const hadFocus = document.activeElement && document.activeElement.id === "q";
+  const pos = hadFocus ? document.activeElement.selectionStart : null;
+  view.innerHTML = voiceWarn() + html;
+  if (hadFocus) { const el = document.getElementById("q"); el.focus(); try { el.setSelectionRange(pos, pos); } catch (e) {} }
+}
+
+function renderPracticeHome() {
+  setTitle("練", "Practice");
+  const best = store.get("best", {});
+  const opts = [["all", "All words", WORDS.length], ["star", "Saved ★", stars.size], ...LESSONS.map((L, i) => [String(i), "Lesson " + (i + 1), WORDS.filter(w => w.lesson === i).length])];
+  view.innerHTML = `<div><div class="label">Flashcards</div><h2>Pick a deck</h2><p class="intro">See the Japanese, say it out loud, then tap to check. Mark each card “Got it” or “Again”.</p></div>` +
+    `<div class="deck-pick">${opts.map(([k, t, n]) => `<button class="lesson-card" style="grid-template-columns:1fr" data-deck="${k}" ${n ? "" : "disabled"}><div><div class="t">${t}</div><div class="s">${n} cards${best[k] != null ? " · best " + best[k] + "%" : ""}</div></div></button>`).join("")}</div>` +
+    `<div class="note-card"><h3>Card direction</h3><div class="chips"><button class="chip" data-mode="jp" aria-pressed="${store.get("mode", "jp") === "jp"}">Japanese → English</button><button class="chip" data-mode="en" aria-pressed="${store.get("mode", "jp") === "en"}">English → Japanese</button></div></div>`;
+  view.scrollTop = 0;
+}
+
+function startDeck(key) {
+  let cards = key === "all" ? WORDS : key === "star" ? WORDS.filter(w => stars.has(w.jp)) : WORDS.filter(w => w.lesson === +key);
+  cards = cards.slice().sort(() => Math.random() - 0.5);
+  if (!cards.length) return;
+  deck = { key, cards, i: 0, shown: false, known: 0, again: [], mode: store.get("mode", "jp") };
+  tab = "practice"; render();
+}
+
+function renderCard() {
+  setTitle("練", "Practice");
+  const d = deck;
+  if (d.i >= d.cards.length) {
+    const pct = Math.round(d.known / d.cards.length * 100);
+    const best = store.get("best", {}); if (best[d.key] == null || pct > best[d.key]) { best[d.key] = pct; store.set("best", best); }
+    view.innerHTML = `<div class="flash" style="cursor:default"><div class="label">Deck finished</div><div class="big" style="font-family:var(--f-display)">${d.known} / ${d.cards.length}</div><div class="hint">${pct === 100 ? "Perfect. すごい！ (sugoi, amazing)" : d.again.length + " to review again"}</div></div>` +
+      `<div class="btns">${d.again.length ? `<button class="btn primary" id="redo">Review missed</button>` : ""}<button class="btn" id="done" ${d.again.length ? "" : 'style="grid-column:1/-1"'}>Back to decks</button></div>`;
+    return;
+  }
+  const c = d.cards[d.i];
+  const front = d.mode === "jp" ? `<div class="big" lang="ja">${c.jp}</div>` : `<div class="big" style="font-family:var(--f-display);font-size:1.6rem">${esc(c.en)}</div>`;
+  const back = d.mode === "jp"
+    ? `<div class="answer"><span class="ro">${c.ro}</span><span>${esc(c.en)}</span></div>`
+    : `<div class="answer"><div class="jp" lang="ja" style="font-size:1.6rem">${c.jp}</div><span class="ro">${c.ro}</span></div>`;
+  view.innerHTML = `<div class="count"><span>Card ${d.i + 1} of ${d.cards.length}</span><span>${d.known} known</span></div>` +
+    `<div class="progress"><i style="width:${d.i / d.cards.length * 100}%"></i></div>` +
+    `<div class="flash" id="flash">${front}${d.shown ? back : `<div class="hint">Say it out loud, then tap to reveal</div>`}</div>` +
+    (d.shown
+      ? `<div style="display:flex;justify-content:center">${playBtn(c.jp, c.ro)}</div><div class="btns"><button class="btn" id="again">Again</button><button class="btn good" id="got">Got it</button></div>`
+      : `<button class="btn primary" id="reveal">Show answer</button>`);
+  if (d.shown && d.mode === "en") say(c.jp, view.querySelector(".play"));
+}
+
+/* ---------- Events ---------- */
+document.querySelector(".tabs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-tab]"); if (!b) return;
+  if (tab === b.dataset.tab) { openLesson = null; deck = null; }
+  tab = b.dataset.tab; store.set("tab", tab); render(); view.scrollTop = 0;
+});
+backBtn.addEventListener("click", () => { if (tab === "lessons") openLesson = null; if (tab === "practice") deck = null; render(); });
+document.querySelectorAll(".speed button").forEach(b => {
+  b.setAttribute("aria-pressed", parseFloat(b.dataset.rate) === rate);
+  b.addEventListener("click", () => {
+    rate = parseFloat(b.dataset.rate); store.set("rate", rate);
+    document.querySelectorAll(".speed button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  });
+});
+view.addEventListener("click", e => {
+  const t = e.target;
+  const play = t.closest(".play"); if (play) { say(play.dataset.say, play); return; }
+  const star = t.closest(".star");
+  if (star) {
+    const k = star.dataset.star; stars.has(k) ? stars.delete(k) : stars.add(k);
+    store.set("stars", [...stars]);
+    if (tab === "book") renderBook(); else star.setAttribute("aria-pressed", stars.has(k));
+    return;
+  }
+  const open = t.closest("[data-open]"); if (open) { openLesson = +open.dataset.open; render(); return; }
+  const pl = t.closest("[data-practice-lesson]"); if (pl) { startDeck(pl.dataset.practiceLesson); return; }
+  const chip = t.closest("[data-filter]"); if (chip) { bookFilter = chip.dataset.filter; renderBook(); return; }
+  const mode = t.closest("[data-mode]"); if (mode) { store.set("mode", mode.dataset.mode); renderPracticeHome(); return; }
+  const dk = t.closest("[data-deck]"); if (dk && !dk.disabled) { startDeck(dk.dataset.deck); return; }
+  if (!deck) return;
+  if (t.closest("#reveal") || (t.closest("#flash") && !deck.shown)) { deck.shown = true; renderCard(); return; }
+  if (t.closest("#got")) { deck.known++; deck.i++; deck.shown = false; renderCard(); return; }
+  if (t.closest("#again")) { deck.again.push(deck.cards[deck.i]); deck.i++; deck.shown = false; renderCard(); return; }
+  if (t.closest("#redo")) { deck = { ...deck, cards: deck.again.sort(() => Math.random() - 0.5), i: 0, shown: false, known: 0, again: [] }; renderCard(); return; }
+  if (t.closest("#done")) { deck = null; render(); }
+});
+view.addEventListener("input", e => { if (e.target.id === "q") { bookQuery = e.target.value; renderBook(); } });
+
+render();
+</script>
+
+<script>
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
+</script>
+</body>
+</html>
