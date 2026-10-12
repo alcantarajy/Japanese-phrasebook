@@ -191,8 +191,33 @@ const LESSONS = [
         ["You","おかいけい、おねがいします","Okaikei, onegaishimasu."],
         ["You","ごちそうさまでした","Gochisōsama deshita!"] ]}
     ]}
+  ,{ id: "l4", kana: "駅", title: "Trains and directions", sub: "Tickets, platforms, asking the way",
+    intro: "How to get a ticket, find your platform, check you're on the right train, and ask for directions on the street.",
+    blocks: [
+      { type: "words", title: "At the station", items: [
+        ["えき","eki","station"],["でんしゃ","densha","train"],["きっぷ","kippu","ticket"],
+        ["しんじゅくにいきたいです","Shinjuku ni ikitai desu","I want to go to Shinjuku"],
+        ["しんじゅくまで、いくらですか","Shinjuku made, ikura desu ka","how much to Shinjuku?"],
+        ["このでんしゃはしんじゅくにいきますか","kono densha wa Shinjuku ni ikimasu ka","does this train go to Shinjuku?"],
+        ["なんばんせんですか","nanban-sen desu ka","which platform?"] ]},
+      { type: "words", title: "Asking the way", items: [
+        ["みぎ","migi","right"],["ひだり","hidari","left"],["まっすぐ","massugu","straight ahead"],
+        ["ちかいですか","chikai desu ka","is it near?"],["とおいですか","tōi desu ka","is it far?"],
+        ["ちずでおしえてください","chizu de oshiete kudasai","please show me on the map"] ]},
+      { type: "note", title: "Grammar: ni means “to”", html: "<p><b>に (ni)</b> marks where you are going, like <i>sa</i> in Tagalog.</p><ul><li><i>Shinjuku <b>ni</b> ikitai desu.</i> “I want to go <b>to</b> Shinjuku.”</li><li><i>Pupunta ako <b>sa</b> Shinjuku.</i> Same pattern.</li></ul><p>Swap in any place name: <i>Shibuya ni</i>, <i>Ōsaka ni</i>, <i>hoteru ni</i> (to the hotel).</p>" },
+      { type: "words", title: "Signs you'll see", items: [
+        ["出口","deguchi","exit"],["入口","iriguchi","entrance"],["改札","kaisatsu","ticket gates"],
+        ["乗り換え","norikae","transfer"],["三番線","san-bansen","platform 3"] ]},
+      { type: "note", title: "Travel tip", html: "<p>Skip paper tickets and use a <b>Suica</b> card. On iPhone you can add one in the Wallet app. Tap it at the 改札 gates and the fare is taken off automatically.</p>" },
+      { type: "dialog", title: "At the ticket gate", items: [
+        ["You","すみません。しんじゅくにいきたいです","Sumimasen. Shinjuku ni ikitai desu."],
+        ["Staff","さんばんせんです","San-bansen desu. (Platform 3.)"],
+        ["You","このでんしゃはしんじゅくにいきますか","Kono densha wa Shinjuku ni ikimasu ka?"],
+        ["Staff","はい、いきます","Hai, ikimasu."],
+        ["You","ありがとうございます","Arigatō gozaimasu!"] ]}
+    ]}
 ];
-const NEXT = { kana: "駅", title: "Trains and directions", sub: "Next lesson · ask your teacher" };
+const NEXT = { kana: "話", title: "Greetings and introducing yourself", sub: "Next lesson · daily conversation" };
 
 const WORDS = [];
 LESSONS.forEach((L, li) => L.blocks.forEach(b => { if (b.type === "words") b.items.forEach(([jp, ro, en]) => WORDS.push({ jp, ro, en, lesson: li, group: b.title })); }));
