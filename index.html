@@ -44,7 +44,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font
 .speed button { border: 0; background: transparent; color: var(--fg); font: 600 0.78rem var(--f-body); padding: 6px 11px; cursor: pointer; }
 .speed button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
 main { flex: 1; overflow-y: auto; padding: 16px 16px 24px; display: flex; flex-direction: column; gap: 18px; -webkit-overflow-scrolling: touch; }
-.tabs { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); background: var(--card); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.tabs { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); background: var(--card); padding-bottom: env(safe-area-inset-bottom, 0px); }
 .tabs button { border: 0; background: transparent; color: var(--muted); font: 600 0.75rem var(--f-body); padding: 9px 4px 10px; display: grid; justify-items: center; gap: 2px; cursor: pointer; }
 .tabs button .g { font-family: var(--f-jp); font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
 .tabs button[aria-current="true"] { color: var(--accent); }
@@ -110,6 +110,21 @@ h3 { font-family: var(--f-display); font-size: 1rem; margin: 0 0 8px; }
 .progress { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
 .progress i { display: block; height: 100%; background: var(--accent); transition: width .25s; }
 .count { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* Listen (podcast) */
+.player { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 22px 18px; display: grid; gap: 10px; text-align: center; justify-items: center; }
+.player .big { font-family: var(--f-jp); font-size: 2.1rem; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+.player .phase { font: 700 0.72rem var(--f-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); min-height: 1.2em; }
+.player .count, .player .progress { width: 100%; }
+.transport { display: flex; justify-content: center; align-items: center; gap: 22px; margin-top: 6px; }
+.tbtn { width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; display: grid; place-items: center; }
+.tbtn.main { width: 72px; height: 72px; background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.toggle { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 0.92rem; padding: 4px 0; }
+.toggle input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+.qrow { display: block; width: 100%; text-align: left; border: 0; border-top: 1px solid var(--line); background: transparent; color: var(--fg); font: inherit; padding: 10px 14px; cursor: pointer; }
+.qrow:first-child { border-top: 0; }
+.qrow.cur { background: var(--accent-soft); }
+.qrow .jp { font-size: 1.05rem; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
@@ -129,6 +144,7 @@ h3 { font-family: var(--f-display); font-size: 1rem; margin: 0 0 8px; }
   <nav class="tabs" aria-label="Sections">
     <button id="tab-lessons" data-tab="lessons" aria-current="true"><span class="g">課</span>Lessons</button>
     <button id="tab-book" data-tab="book" aria-current="false"><span class="g">語</span>Phrasebook</button>
+    <button id="tab-listen" data-tab="listen" aria-current="false"><span class="g">聴</span>Listen</button>
     <button id="tab-practice" data-tab="practice" aria-current="false"><span class="g">練</span>Practice</button>
   </nav>
 </div>
@@ -232,13 +248,14 @@ let rate = store.get("rate", 0.6);
 
 /* ---------- Speech ---------- */
 const synth = window.speechSynthesis;
-let jaVoice = null, voicesChecked = false;
+let jaVoice = null, enVoice = null, voicesChecked = false;
 function pickVoice() {
   if (!synth) return;
   const vs = synth.getVoices();
   if (!vs.length) return;
   voicesChecked = true;
   jaVoice = vs.find(v => /^ja/i.test(v.lang) && /google|kyoko|otoya|natural/i.test(v.name)) || vs.find(v => /^ja/i.test(v.lang)) || null;
+  enVoice = vs.find(v => /^en[-_]US/i.test(v.lang) && /samantha|google|natural|aria|jenny/i.test(v.name)) || vs.find(v => /^en/i.test(v.lang)) || null;
   render();
 }
 if (synth) { pickVoice(); synth.onvoiceschanged = pickVoice; setTimeout(pickVoice, 800); }
@@ -263,7 +280,7 @@ const voiceWarn = () => (synth && voicesChecked && !jaVoice) || !synth
 
 /* ---------- State ---------- */
 let tab = store.get("tab", "lessons");
-if (!["lessons", "book", "practice"].includes(tab)) tab = "lessons";
+if (!["lessons", "book", "listen", "practice"].includes(tab)) tab = "lessons";
 let openLesson = null;
 let bookFilter = "all", bookQuery = "";
 let deck = null; // { cards, i, shown, known, mode }
@@ -278,6 +295,7 @@ function render() {
   if (tab === "lessons") openLesson === null ? renderLessonList() : renderLesson(openLesson);
   if (tab === "book") renderBook();
   if (tab === "practice") deck ? renderCard() : renderPracticeHome();
+  if (tab === "listen") renderListen();
 }
 
 function setTitle(kana, text) { titleEl.innerHTML = `<span class="kana">${kana}</span>${esc(text)}`; }
@@ -367,9 +385,92 @@ function renderCard() {
   if (d.shown && d.mode === "en") say(c.jp, view.querySelector(".play"));
 }
 
+/* ---------- Listen (podcast mode) ---------- */
+const listen = { key: "all", i: 0, playing: false, run: 0, phase: "", twice: store.get("twice", true), gap: store.get("gap", true) };
+let wakeLock = null;
+const ICON_PLAY = '<svg width="28" height="28" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.5v11l9-5.5z" fill="currentColor"/></svg>';
+const ICON_PAUSE = '<svg width="26" height="26" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor"/></svg>';
+const ICON_PREV = '<svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3h2v10H3zM13 3v10L6 8z" fill="currentColor"/></svg>';
+const ICON_NEXT = '<svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="true"><path d="M11 3h2v10h-2zM3 3v10l7-5z" fill="currentColor"/></svg>';
+function listenItems() {
+  return listen.key === "all" ? WORDS : listen.key === "star" ? WORDS.filter(w => stars.has(w.jp)) : WORDS.filter(w => w.lesson === +listen.key);
+}
+function speakP(text, lang, voice, r) {
+  return new Promise(res => {
+    if (!synth) return res();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang; u.rate = r; if (voice) u.voice = voice;
+    let done = false; const fin = () => { if (!done) { done = true; res(); } };
+    u.onend = fin; u.onerror = fin;
+    synth.speak(u);
+    setTimeout(fin, 3000 + text.length * 450 / r);
+  });
+}
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function setPhase(p) { listen.phase = p; const el = document.getElementById("phase"); if (el) el.textContent = p; }
+async function requestWake() { try { if (navigator.wakeLock) wakeLock = await navigator.wakeLock.request("screen"); } catch (e) {} }
+function releaseWake() { try { if (wakeLock) wakeLock.release(); } catch (e) {} wakeLock = null; }
+async function runListen() {
+  const id = ++listen.run;
+  const alive = () => listen.playing && listen.run === id;
+  if (synth) synth.cancel();
+  while (alive()) {
+    const items = listenItems();
+    if (!items.length) { haltListen(); renderListen(); return; }
+    if (listen.i >= items.length) listen.i = 0;
+    const w = items[listen.i];
+    renderListen();
+    setPhase("Japanese"); await speakP(w.jp, "ja-JP", jaVoice, rate); if (!alive()) return;
+    await wait(700); if (!alive()) return;
+    setPhase("English"); await speakP(w.en, "en-US", enVoice, 1); if (!alive()) return;
+    await wait(700); if (!alive()) return;
+    if (listen.twice) { setPhase("Japanese again"); await speakP(w.jp, "ja-JP", jaVoice, rate); if (!alive()) return; }
+    if (listen.gap) { setPhase("Your turn · say it"); await wait(2600); } else await wait(900);
+    if (!alive()) return;
+    listen.i = (listen.i + 1) % items.length;
+  }
+}
+function haltListen() { listen.playing = false; listen.run++; if (synth) synth.cancel(); releaseWake(); listen.phase = ""; }
+function playListen() { if (!synth) return; listen.playing = true; requestWake(); runListen(); }
+function jumpListen(i) {
+  const n = listenItems().length; if (!n) return;
+  listen.i = (i + n) % n;
+  if (listen.playing) runListen(); else renderListen();
+}
+function renderListen() {
+  setTitle("聴", "Listen");
+  const items = listenItems();
+  if (listen.i >= items.length) listen.i = 0;
+  const w = items[listen.i];
+  const chips = [["all", "All " + WORDS.length], ["star", "★ Saved " + stars.size], ...LESSONS.map((L, i) => [String(i), "L" + (i + 1) + " " + L.title])];
+  const player = w ? `<div class="player">
+      <div class="phase" id="phase">${listen.playing ? esc(listen.phase) : "Paused"}</div>
+      <div class="big" lang="ja">${w.jp}</div>
+      <div class="ro">${w.ro}</div>
+      <div class="en">${esc(w.en)}</div>
+      <div class="count"><span>${listen.i + 1} of ${items.length}</span><span>Lesson ${w.lesson + 1}</span></div>
+      <div class="progress"><i style="width:${(listen.i + 1) / items.length * 100}%"></i></div>
+      <div class="transport">
+        <button class="tbtn" id="lprev" aria-label="Previous word">${ICON_PREV}</button>
+        <button class="tbtn main" id="lplay" aria-label="${listen.playing ? "Pause" : "Play"}">${listen.playing ? ICON_PAUSE : ICON_PLAY}</button>
+        <button class="tbtn" id="lnext" aria-label="Next word">${ICON_NEXT}</button>
+      </div>
+    </div>` : `<div class="empty">${listen.key === "star" ? "Tap ★ on any word to add it to your Saved list." : "No words here yet."}</div>`;
+  const opts = `<div class="note-card">
+      <label class="toggle" for="lt-twice"><span>Repeat the Japanese after the English</span><input type="checkbox" id="lt-twice" ${listen.twice ? "checked" : ""}></label>
+      <label class="toggle" for="lt-gap"><span>Pause so I can say it out loud</span><input type="checkbox" id="lt-gap" ${listen.gap ? "checked" : ""}></label>
+      <p class="muted" style="font-size:0.85rem;margin:6px 0 0">Plays through the list and starts again at the end. Keep this screen open while you listen: your phone stops the voice when the screen locks or you switch apps.</p>
+    </div>`;
+  const queue = items.length ? `<section><h3>Up next</h3><div class="list">${items.map((q, i) => `<button class="qrow${i === listen.i ? " cur" : ""}" data-jump="${i}"><span class="jp" lang="ja">${q.jp}</span><div class="meta"><span class="ro">${q.ro}</span><span class="en">${esc(q.en)}</span></div></button>`).join("")}</div></section>` : "";
+  view.innerHTML = voiceWarn() +
+    `<div class="chips">${chips.map(([k, t]) => `<button class="chip" data-lkey="${k}" aria-pressed="${listen.key === k}">${t}</button>`).join("")}</div>` +
+    player + opts + queue;
+}
+
 /* ---------- Events ---------- */
 document.querySelector(".tabs").addEventListener("click", e => {
   const b = e.target.closest("button[data-tab]"); if (!b) return;
+  if (b.dataset.tab !== "listen" && listen.playing) haltListen();
   if (tab === b.dataset.tab) { openLesson = null; deck = null; }
   tab = b.dataset.tab; store.set("tab", tab); render(); view.scrollTop = 0;
 });
@@ -391,6 +492,11 @@ view.addEventListener("click", e => {
     if (tab === "book") renderBook(); else star.setAttribute("aria-pressed", stars.has(k));
     return;
   }
+  const lk = t.closest("[data-lkey]"); if (lk) { listen.key = lk.dataset.lkey; listen.i = 0; listen.playing ? runListen() : renderListen(); return; }
+  if (t.closest("#lplay")) { listen.playing ? (haltListen(), renderListen()) : playListen(); return; }
+  if (t.closest("#lnext")) { jumpListen(listen.i + 1); return; }
+  if (t.closest("#lprev")) { jumpListen(listen.i - 1); return; }
+  const jq = t.closest("[data-jump]"); if (jq) { jumpListen(+jq.dataset.jump); return; }
   const open = t.closest("[data-open]"); if (open) { openLesson = +open.dataset.open; render(); return; }
   const pl = t.closest("[data-practice-lesson]"); if (pl) { startDeck(pl.dataset.practiceLesson); return; }
   const chip = t.closest("[data-filter]"); if (chip) { bookFilter = chip.dataset.filter; renderBook(); return; }
@@ -403,6 +509,11 @@ view.addEventListener("click", e => {
   if (t.closest("#redo")) { deck = { ...deck, cards: deck.again.sort(() => Math.random() - 0.5), i: 0, shown: false, known: 0, again: [] }; renderCard(); return; }
   if (t.closest("#done")) { deck = null; render(); }
 });
+view.addEventListener("change", e => {
+  if (e.target.id === "lt-twice") { listen.twice = e.target.checked; store.set("twice", listen.twice); }
+  if (e.target.id === "lt-gap") { listen.gap = e.target.checked; store.set("gap", listen.gap); }
+});
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && listen.playing) requestWake(); });
 view.addEventListener("input", e => { if (e.target.id === "q") { bookQuery = e.target.value; renderBook(); } });
 
 render();
