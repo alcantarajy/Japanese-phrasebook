@@ -235,6 +235,30 @@ const LESSONS = [
 ];
 const NEXT = { kana: "話", title: "Greetings and introducing yourself", sub: "Next lesson · daily conversation" };
 
+/* What the voice reads. Kanji help the phone's voice split words, so particles like は are said "wa". */
+const SAY = {
+  "えいごはだいじょうぶですか": "英語は大丈夫ですか",
+  "えきはどこですか": "駅はどこですか",
+  "おすすめはなんですか": "おすすめは何ですか",
+  "すみません！おすすめはなんですか": "すみません！おすすめは何ですか",
+  "なんめいさまですか": "何名様ですか",
+  "いらっしゃいませ！なんめいさまですか": "いらっしゃいませ！何名様ですか",
+  "ひとりです": "一人です", "ふたりです": "二人です", "さんにんです": "三人です", "よにんです": "四人です",
+  "これをふたつください": "これを二つください",
+  "みず、おねがいします": "水、お願いします",
+  "これをふたつください。みず、おねがいします": "これを二つください。水、お願いします",
+  "おかいけい、おねがいします": "お会計、お願いします",
+  "しんじゅくにいきたいです": "新宿に行きたいです",
+  "すみません。しんじゅくにいきたいです": "すみません。新宿に行きたいです",
+  "しんじゅくまで、いくらですか": "新宿まで、いくらですか",
+  "このでんしゃはしんじゅくにいきますか": "この電車は新宿に行きますか",
+  "なんばんせんですか": "何番線ですか",
+  "さんばんせんです": "三番線です",
+  "はい、いきます": "はい、行きます",
+  "ちずでおしえてください": "地図で教えてください"
+};
+const spoken = jp => SAY[jp] || jp;
+
 const WORDS = [];
 LESSONS.forEach((L, li) => L.blocks.forEach(b => { if (b.type === "words") b.items.forEach(([jp, ro, en]) => WORDS.push({ jp, ro, en, lesson: li, group: b.title })); }));
 
@@ -263,7 +287,7 @@ function say(text, btn) {
   if (!synth) return;
   synth.cancel();
   document.querySelectorAll(".play.on").forEach(x => x.classList.remove("on"));
-  const u = new SpeechSynthesisUtterance(text);
+  const u = new SpeechSynthesisUtterance(spoken(text));
   u.lang = "ja-JP"; u.rate = rate; if (jaVoice) u.voice = jaVoice;
   if (btn) { btn.classList.add("on"); u.onend = u.onerror = () => btn.classList.remove("on"); }
   synth.speak(u);
@@ -420,11 +444,11 @@ async function runListen() {
     if (listen.i >= items.length) listen.i = 0;
     const w = items[listen.i];
     renderListen();
-    setPhase("Japanese"); await speakP(w.jp, "ja-JP", jaVoice, rate); if (!alive()) return;
+    setPhase("Japanese"); await speakP(spoken(w.jp), "ja-JP", jaVoice, rate); if (!alive()) return;
     await wait(700); if (!alive()) return;
     setPhase("English"); await speakP(w.en, "en-US", enVoice, 1); if (!alive()) return;
     await wait(700); if (!alive()) return;
-    if (listen.twice) { setPhase("Japanese again"); await speakP(w.jp, "ja-JP", jaVoice, rate); if (!alive()) return; }
+    if (listen.twice) { setPhase("Japanese again"); await speakP(spoken(w.jp), "ja-JP", jaVoice, rate); if (!alive()) return; }
     if (listen.gap) { setPhase("Your turn · say it"); await wait(2600); } else await wait(900);
     if (!alive()) return;
     listen.i = (listen.i + 1) % items.length;
