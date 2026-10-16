@@ -297,8 +297,32 @@ const LESSONS = [
         ["Staff","はい。ふくろはいりますか","Hai. Fukuro wa irimasu ka?"],
         ["You","だいじょうぶです","Daijōbu desu."] ]}
     ]}
+  ,{ id: "l7", kana: "好", title: "Likes and hobbies", sub: "Daily conversation · getting to know people",
+    intro: "Say what you like and don't like, talk about hobbies, and turn the question back to the other person.",
+    blocks: [
+      { type: "words", title: "Saying what you like", items: [
+        ["すきです","suki desu","I like it"],["だいすきです","daisuki desu","I love it"],
+        ["あまりすきじゃないです","amari suki ja nai desu","I don't really like it"],
+        ["にほんりょうりがすきです","Nihon ryōri ga suki desu","I like Japanese food"],
+        ["おいしい","oishii","delicious"],["いいですね","ii desu ne","that's nice!"],["わたしも","watashi mo","me too"] ]},
+      { type: "words", title: "Hobbies", items: [
+        ["しゅみはなんですか","shumi wa nan desu ka","what are your hobbies?"],
+        ["しゅみはりょこうです","shumi wa ryokō desu","my hobby is traveling"],
+        ["りょうり","ryōri","cooking"],["りょこう","ryokō","travel"],["おんがく","ongaku","music"],
+        ["えいが","eiga","movies"],["どくしょ","dokusho","reading"],["スポーツ","supōtsu","sports"] ]},
+      { type: "note", title: "Grammar: ga and mo", html: "<ul><li><b>が (ga)</b> marks the thing you like: <i>Ongaku <b>ga</b> suki desu</i>, “I like music”. Like Tagalog <i>gusto ko <b>ang</b> musika</i>.</li><li><b>も (mo)</b> means “also” and replaces が: <i>Eiga <b>mo</b> suki desu</i>, “I also like movies”.</li><li><i>Watashi <b>mo</b></i> means “me too”, like <i>ako rin</i>.</li></ul>" },
+      { type: "note", title: "Culture tip: -san", html: "<p>Add <b>さん (-san)</b> to other people's names, like <i>Tanaka-san</i>, but never to your own.</p><p><i>Tanaka-san wa?</i> means “And you?”. Use it to turn any question back to the other person.</p>" },
+      { type: "dialog", title: "Talking about hobbies", items: [
+        ["Tanaka","しゅみはなんですか","Shumi wa nan desu ka?"],
+        ["You","りょうりです","Ryōri desu."],
+        ["Tanaka","いいですね！","Ii desu ne!"],
+        ["You","たなかさんは？","Tanaka-san wa?"],
+        ["Tanaka","おんがくがすきです","Ongaku ga suki desu."],
+        ["You","わたしもおんがくがすきです！","Watashi mo ongaku ga suki desu!"],
+        ["Tanaka","そうですか！","Sō desu ka!"] ]}
+    ]}
 ];
-const NEXT = { kana: "好", title: "Likes and hobbies", sub: "Next lesson · daily conversation" };
+const NEXT = { kana: "宿", title: "Hotel check-in", sub: "Next lesson · travel" };
 
 /* What the voice reads. Kanji help the phone's voice split words, so particles like は are said "wa". */
 const SAY = {
@@ -345,7 +369,15 @@ const SAY = {
   "ふくろはいりますか": "袋はいりますか",
   "はい。ふくろはいりますか": "はい。袋はいりますか",
   "だいじょうぶです": "大丈夫です",
-  "すみません、これはいくらですか": "すみません、これはいくらですか"
+  "すみません、これはいくらですか": "すみません、これはいくらですか",
+  "すきです": "好きです", "だいすきです": "大好きです",
+  "あまりすきじゃないです": "あまり好きじゃないです",
+  "にほんりょうりがすきです": "日本料理が好きです",
+  "わたしも": "私も",
+  "しゅみはなんですか": "趣味は何ですか", "しゅみはりょこうです": "趣味は旅行です",
+  "りょうり": "料理", "りょこう": "旅行", "おんがく": "音楽", "えいが": "映画", "どくしょ": "読書",
+  "りょうりです": "料理です", "たなかさんは？": "田中さんは？",
+  "おんがくがすきです": "音楽が好きです", "わたしもおんがくがすきです！": "私も音楽が好きです！"
 };
 const spoken = jp => SAY[jp] || jp;
 
