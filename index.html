@@ -572,7 +572,8 @@ function renderLesson(i) {
       if (b.type === "note") return `<section class="note-card"><h3>${b.title}</h3>${b.html}</section>`;
       if (b.type === "dialog") return `<section><h3>${b.title}</h3><div class="list">${b.items.map(([who, jp, ro]) => `<div class="row" style="grid-template-columns:44px 1fr">${playBtn(jp, ro)}<div><div class="who">${who}</div><div class="jp" lang="ja">${jp}</div><div class="en">${ro}</div></div></div>`).join("")}</div></section>`;
     }).join("") +
-    `<button class="btn primary" data-practice-lesson="${i}">Practice these words</button>`;
+    `<div class="stack">` + (CONVOS.some(c => c.lesson === i) ? `<button class="btn" data-convo="${i}">▶ Listen to the conversation (about 3 min)</button>` : "") +
+    `<button class="btn primary" data-practice-lesson="${i}">Practice these words</button></div>`;
   view.scrollTop = 0;
 }
 
@@ -635,8 +636,224 @@ function renderCard() {
   if (d.shown && d.mode === "en") say(c.jp, view.querySelector(".play"));
 }
 
-/* ---------- Listen (podcast mode) ---------- */
-const listen = { key: "all", i: 0, playing: false, run: 0, phase: "", twice: store.get("twice", true), gap: store.get("gap", true) };
+/* ---------- Conversations (about 3 minutes each) ---------- */
+/* [speaker, kana shown on screen, what the voice reads, romaji, English] */
+const CONVOS = [
+  { lesson: 0, title: "Hello at a café", setting: "Mo stops at a small café and chats with the owner.", lines: [
+    ["Owner","こんにちは！","こんにちは！","Konnichiwa!","Hello!"],
+    ["Mo","こんにちは。","こんにちは。","Konnichiwa.","Hello."],
+    ["Owner","いらっしゃいませ。どうぞ。","いらっしゃいませ。どうぞ。","Irasshaimase. Dōzo.","Welcome. Please, come in."],
+    ["Mo","ありがとう。","ありがとう。","Arigatō.","Thanks."],
+    ["Owner","いい てんき ですね。","いい天気ですね。","Ii tenki desu ne.","Nice weather, isn't it?"],
+    ["Mo","はい、いい てんき です。","はい、いい天気です。","Hai, ii tenki desu.","Yes, it's nice weather."],
+    ["Owner","コーヒー ですか。","コーヒーですか。","Kōhī desu ka?","Coffee?"],
+    ["Mo","はい、コーヒー を ください。","はい、コーヒーをください。","Hai, kōhī o kudasai.","Yes, coffee please."],
+    ["Owner","ホット ですか、アイス ですか。","ホットですか、アイスですか。","Hotto desu ka, aisu desu ka?","Hot or iced?"],
+    ["Mo","アイス で おねがいします。","アイスでお願いします。","Aisu de onegaishimasu.","Iced, please."],
+    ["Owner","はい、どうぞ。","はい、どうぞ。","Hai, dōzo.","Here you go."],
+    ["Mo","ありがとう ございます。","ありがとうございます。","Arigatō gozaimasu.","Thank you very much."],
+    ["Owner","おいしい ですか。","美味しいですか。","Oishii desu ka?","Is it good?"],
+    ["Mo","はい、おいしい です！","はい、美味しいです！","Hai, oishii desu!","Yes, it's delicious!"],
+    ["Owner","よかった。","良かった。","Yokatta.","I'm glad."],
+    ["Owner","にほん は はじめて ですか。","日本は初めてですか。","Nihon wa hajimete desu ka?","Is this your first time in Japan?"],
+    ["Mo","はい、はじめて です。","はい、初めてです。","Hai, hajimete desu.","Yes, it's my first time."],
+    ["Owner","そう ですか！ようこそ。","そうですか！ようこそ。","Sō desu ka! Yōkoso.","Really! Welcome."],
+    ["Mo","ありがとう ございます。","ありがとうございます。","Arigatō gozaimasu.","Thank you."],
+    ["Mo","ごちそうさま でした。","ご馳走様でした。","Gochisōsama deshita.","Thank you for the drink."],
+    ["Owner","ありがとう ございました。また どうぞ。","ありがとうございました。またどうぞ。","Arigatō gozaimashita. Mata dōzo.","Thank you. Please come again."],
+    ["Owner","きを つけて！","気をつけて！","Ki o tsukete!","Take care!"],
+    ["Mo","はい、ありがとう！","はい、ありがとう！","Hai, arigatō!","Thanks!"] ]},
+  { lesson: 1, title: "Lost in a shopping street", setting: "Mo asks a passerby for the toilet and the station, then buys a snack at a stall.", lines: [
+    ["Mo","すみません。","すみません。","Sumimasen.","Excuse me."],
+    ["Passerby","はい？","はい？","Hai?","Yes?"],
+    ["Mo","トイレ は どこ ですか。","トイレはどこですか。","Toire wa doko desu ka?","Where is the toilet?"],
+    ["Passerby","トイレ ですか。あの コンビニ に あります よ。","トイレですか。あのコンビニにありますよ。","Toire desu ka. Ano konbini ni arimasu yo.","The toilet? There's one in that convenience store."],
+    ["Mo","コンビニ… すみません、わかりません。","コンビニ…すみません、分かりません。","Konbini… sumimasen, wakarimasen.","Convenience store… sorry, I don't understand."],
+    ["Passerby","あそこ です。あの みどり の みせ です。","あそこです。あの緑の店です。","Asoko desu. Ano midori no mise desu.","Over there. That green shop."],
+    ["Mo","ああ、はい！ありがとう ございます。","ああ、はい！ありがとうございます。","Ā, hai! Arigatō gozaimasu.","Oh, yes! Thank you very much."],
+    ["Passerby","いいえ。","いいえ。","Iie.","Not at all."],
+    ["Mo","あの、えいご は だいじょうぶ ですか。","あの、英語は大丈夫ですか。","Ano, eigo wa daijōbu desu ka?","Um, is English okay?"],
+    ["Passerby","すこし だけ…。","少しだけ…。","Sukoshi dake…","Just a little…"],
+    ["Mo","えき は どこ ですか。","駅はどこですか。","Eki wa doko desu ka?","Where is the station?"],
+    ["Passerby","えき は まっすぐ です。ごふん ぐらい です。","駅はまっすぐです。五分ぐらいです。","Eki wa massugu desu. Go-fun gurai desu.","The station is straight ahead. About five minutes."],
+    ["Mo","ごふん ですね。ありがとう ございます。","五分ですね。ありがとうございます。","Go-fun desu ne. Arigatō gozaimasu.","Five minutes. Thank you."],
+    ["Passerby","きを つけて。","気をつけて。","Ki o tsukete.","Take care."],
+    ["Mo","すみません。これ は いくら ですか。","すみません。これはいくらですか。","Sumimasen. Kore wa ikura desu ka?","Excuse me. How much is this?"],
+    ["Seller","ひゃく ごじゅう えん です。","百五十円です。","Hyaku go-jū en desu.","It's 150 yen."],
+    ["Mo","すみません、もう いちど おねがいします。","すみません、もう一度お願いします。","Sumimasen, mō ichido onegaishimasu.","Sorry, once more please."],
+    ["Seller","ひゃく、ごじゅう、えん。","百、五十、円。","Hyaku… go-jū… en.","One hundred… fifty… yen."],
+    ["Mo","はい。これ を ください。","はい。これをください。","Hai. Kore o kudasai.","Okay. This one, please."],
+    ["Seller","ありがとう ございます！","ありがとうございます！","Arigatō gozaimasu!","Thank you!"],
+    ["Mo","ありがとう！","ありがとう！","Arigatō!","Thanks!"] ]},
+  { lesson: 2, title: "Dinner at a ramen shop", setting: "Mo and a friend eat at a ramen shop, from walking in to paying.", lines: [
+    ["Staff","いらっしゃいませ！なんめいさま ですか。","いらっしゃいませ！何名様ですか。","Irasshaimase! Nanmei-sama desu ka?","Welcome! How many people?"],
+    ["Mo","ふたり です。","二人です。","Futari desu.","Two people."],
+    ["Staff","こちら へ どうぞ。","こちらへどうぞ。","Kochira e dōzo.","This way, please."],
+    ["Staff","メニュー です。おのみもの は？","メニューです。お飲み物は？","Menyū desu. O-nomimono wa?","Here's the menu. Something to drink?"],
+    ["Mo","みず を ふたつ おねがいします。","水を二つお願いします。","Mizu o futatsu onegaishimasu.","Two waters, please."],
+    ["Staff","はい、かしこまりました。","はい、かしこまりました。","Hai, kashikomarimashita.","Certainly."],
+    ["Mo","すみません！おすすめ は なん ですか。","すみません！おすすめは何ですか。","Sumimasen! Osusume wa nan desu ka?","Excuse me! What do you recommend?"],
+    ["Staff","とんこつ ラーメン です。とても にんき です よ。","豚骨ラーメンです。とても人気ですよ。","Tonkotsu rāmen desu. Totemo ninki desu yo.","Tonkotsu ramen. It's very popular."],
+    ["Mo","じゃあ、それ を ふたつ ください。","じゃあ、それを二つください。","Jā, sore o futatsu kudasai.","Then two of those, please."],
+    ["Staff","ぎょうざ は いかが ですか。","餃子はいかがですか。","Gyōza wa ikaga desu ka?","Would you like some gyoza?"],
+    ["Mo","はい、ひとつ おねがいします。","はい、一つお願いします。","Hai, hitotsu onegaishimasu.","Yes, one please."],
+    ["Staff","ラーメン ふたつ、ぎょうざ ひとつ ですね。","ラーメン二つ、餃子一つですね。","Rāmen futatsu, gyōza hitotsu desu ne.","Two ramen and one gyoza, right?"],
+    ["Mo","はい。","はい。","Hai.","Yes."],
+    ["Staff","しょうしょう おまち ください。","少々お待ちください。","Shōshō o-machi kudasai.","Please wait a moment."],
+    ["Staff","おまたせ しました。どうぞ。","お待たせしました。どうぞ。","O-matase shimashita. Dōzo.","Sorry to keep you waiting. Here you are."],
+    ["Mo","いただきます！","いただきます！","Itadakimasu!","Let's eat!"],
+    ["Mo","わあ、おいしい！","わあ、美味しい！","Wā, oishii!","Wow, delicious!"],
+    ["Mo","すみません、おかいけい おねがいします。","すみません、お会計お願いします。","Sumimasen, okaikei onegaishimasu.","Excuse me, the bill please."],
+    ["Staff","さんぜん にひゃく えん です。","三千二百円です。","San-zen ni-hyaku en desu.","That's 3,200 yen."],
+    ["Mo","カード で いい ですか。","カードでいいですか。","Kādo de ii desu ka?","Is card okay?"],
+    ["Staff","はい、だいじょうぶ です。","はい、大丈夫です。","Hai, daijōbu desu.","Yes, that's fine."],
+    ["Mo","ごちそうさま でした！","ご馳走様でした！","Gochisōsama deshita!","Thank you for the meal!"],
+    ["Staff","ありがとう ございました！","ありがとうございました！","Arigatō gozaimashita!","Thank you very much!"] ]},
+  { lesson: 3, title: "Getting to Shinjuku", setting: "Mo asks station staff for help, checks the train, and finds the right exit.", lines: [
+    ["Mo","すみません。しんじゅく に いきたい です。","すみません。新宿に行きたいです。","Sumimasen. Shinjuku ni ikitai desu.","Excuse me. I want to go to Shinjuku."],
+    ["Staff","しんじゅく ですね。JR ですか、ちかてつ ですか。","新宿ですね。ジェイアールですか、地下鉄ですか。","Shinjuku desu ne. Jē-āru desu ka, chikatetsu desu ka?","Shinjuku. JR or the subway?"],
+    ["Mo","わかりません。ちかい の は どれ ですか。","分かりません。近いのはどれですか。","Wakarimasen. Chikai no wa dore desu ka?","I don't know. Which one is close?"],
+    ["Staff","JR が ちかい です。あの かいさつ です。","ジェイアールが近いです。あの改札です。","Jē-āru ga chikai desu. Ano kaisatsu desu.","JR is close. Those ticket gates."],
+    ["Mo","きっぷ は どこ で かいますか。","切符はどこで買いますか。","Kippu wa doko de kaimasu ka?","Where do I buy a ticket?"],
+    ["Staff","あそこ の きかい です。でも、スイカ が べんり です よ。","あそこの機械です。でも、スイカが便利ですよ。","Asoko no kikai desu. Demo, Suika ga benri desu yo.","At that machine over there. But Suica is convenient."],
+    ["Mo","スイカ を もって います！","スイカを持っています！","Suika o motte imasu!","I have a Suica!"],
+    ["Staff","じゃあ、だいじょうぶ です。","じゃあ、大丈夫です。","Jā, daijōbu desu.","Then you're all set."],
+    ["Mo","しんじゅく まで、いくら ですか。","新宿まで、いくらですか。","Shinjuku made, ikura desu ka?","How much to Shinjuku?"],
+    ["Staff","にひゃく えん ぐらい です。","二百円ぐらいです。","Ni-hyaku en gurai desu.","About 200 yen."],
+    ["Mo","なんばんせん ですか。","何番線ですか。","Nanban-sen desu ka?","Which platform?"],
+    ["Staff","さんばんせん です。","三番線です。","San-bansen desu.","Platform 3."],
+    ["Mo","ありがとう ございます。","ありがとうございます。","Arigatō gozaimasu.","Thank you."],
+    ["Mo","すみません。この でんしゃ は しんじゅく に いきますか。","すみません。この電車は新宿に行きますか。","Sumimasen. Kono densha wa Shinjuku ni ikimasu ka?","Excuse me. Does this train go to Shinjuku?"],
+    ["Man","はい、いきます よ。みっつ め の えき です。","はい、行きますよ。三つ目の駅です。","Hai, ikimasu yo. Mittsu-me no eki desu.","Yes, it does. It's the third station."],
+    ["Mo","みっつ め ですね。ありがとう ございます！","三つ目ですね。ありがとうございます！","Mittsu-me desu ne. Arigatō gozaimasu!","The third one. Thank you!"],
+    ["Mo","すみません、ひがしぐち は どこ ですか。","すみません、東口はどこですか。","Sumimasen, higashi-guchi wa doko desu ka?","Excuse me, where is the east exit?"],
+    ["Woman","まっすぐ いって、みぎ です。","まっすぐ行って、右です。","Massugu itte, migi desu.","Go straight, then it's on the right."],
+    ["Mo","まっすぐ、みぎ ですね。とおい ですか。","まっすぐ、右ですね。遠いですか。","Massugu, migi desu ne. Tōi desu ka?","Straight, then right. Is it far?"],
+    ["Woman","いいえ、ちかい です。いっぷん ぐらい です。","いいえ、近いです。一分ぐらいです。","Iie, chikai desu. Ippun gurai desu.","No, it's close. About one minute."],
+    ["Mo","たすかりました。ありがとう ございます！","助かりました。ありがとうございます！","Tasukarimashita. Arigatō gozaimasu!","That really helped. Thank you!"] ]},
+  { lesson: 4, title: "Meeting Yuki at a party", setting: "Mo meets Yuki for the first time at a friend's party.", lines: [
+    ["Yuki","こんばんは。","こんばんは。","Konbanwa.","Good evening."],
+    ["Mo","こんばんは。","こんばんは。","Konbanwa.","Good evening."],
+    ["Yuki","はじめまして。ゆき です。","初めまして。ゆきです。","Hajimemashite. Yuki desu.","Nice to meet you. I'm Yuki."],
+    ["Mo","はじめまして。モー です。","初めまして。モーです。","Hajimemashite. Mō desu.","Nice to meet you. I'm Mo."],
+    ["Yuki","モー さん。おくに は どちら ですか。","モーさん。お国はどちらですか。","Mō-san. O-kuni wa dochira desu ka?","Mo, which country are you from?"],
+    ["Mo","フィリピン から きました。","フィリピンから来ました。","Firipin kara kimashita.","I'm from the Philippines."],
+    ["Yuki","そう ですか！フィリピン の どこ ですか。","そうですか！フィリピンのどこですか。","Sō desu ka! Firipin no doko desu ka?","Really! Where in the Philippines?"],
+    ["Mo","マニラ の ちかく です。","マニラの近くです。","Manira no chikaku desu.","Near Manila."],
+    ["Mo","いま は パプアニューギニア に すんで います。","今はパプアニューギニアに住んでいます。","Ima wa Papua Nyūginia ni sunde imasu.","Now I live in Papua New Guinea."],
+    ["Yuki","へえ、すごい！あつい ですか。","へえ、すごい！暑いですか。","Hē, sugoi! Atsui desu ka?","Wow, amazing! Is it hot?"],
+    ["Mo","はい、とても あつい です。","はい、とても暑いです。","Hai, totemo atsui desu.","Yes, very hot."],
+    ["Yuki","にほん は はじめて ですか。","日本は初めてですか。","Nihon wa hajimete desu ka?","Is this your first time in Japan?"],
+    ["Mo","はい、はじめて です。","はい、初めてです。","Hai, hajimete desu.","Yes, it's my first time."],
+    ["Yuki","にほんご、じょうず ですね！","日本語、上手ですね！","Nihongo, jōzu desu ne!","Your Japanese is good!"],
+    ["Mo","いえいえ、まだ まだ です。","いえいえ、まだまだです。","Ie ie, mada mada desu.","Oh no, I still have a long way to go."],
+    ["Yuki","おげんき ですか。つかれて いませんか。","お元気ですか。疲れていませんか。","O-genki desu ka? Tsukarete imasen ka?","How are you? Not tired?"],
+    ["Mo","はい、げんき です。ゆき さん は？","はい、元気です。ゆきさんは？","Hai, genki desu. Yuki-san wa?","I'm fine. And you, Yuki?"],
+    ["Yuki","まあまあ です。しごと が いそがしい です。","まあまあです。仕事が忙しいです。","Māmā desu. Shigoto ga isogashii desu.","So-so. Work is busy."],
+    ["Mo","そう ですか。","そうですか。","Sō desu ka.","I see."],
+    ["Yuki","モー さん、よろしく おねがいします。","モーさん、よろしくお願いします。","Mō-san, yoroshiku onegaishimasu.","Mo, it's nice to meet you."],
+    ["Mo","こちら こそ、よろしく おねがいします。","こちらこそ、よろしくお願いします。","Kochira koso, yoroshiku onegaishimasu.","Likewise, nice to meet you."],
+    ["Yuki","じゃあ、また！おやすみなさい。","じゃあ、また！おやすみなさい。","Jā, mata! Oyasuminasai.","See you! Good night."],
+    ["Mo","おやすみなさい！","おやすみなさい！","Oyasuminasai!","Good night!"] ]},
+  { lesson: 5, title: "Buying a shirt", setting: "Mo looks around a clothing shop, tries on a shirt and pays in cash.", lines: [
+    ["Staff","いらっしゃいませ！","いらっしゃいませ！","Irasshaimase!","Welcome!"],
+    ["Mo","みて いる だけ です。","見ているだけです。","Mite iru dake desu.","I'm just looking."],
+    ["Staff","はい、ごゆっくり どうぞ。","はい、ごゆっくりどうぞ。","Hai, go-yukkuri dōzo.","Of course, take your time."],
+    ["Mo","すみません。この シャツ は いくら ですか。","すみません。このシャツはいくらですか。","Sumimasen. Kono shatsu wa ikura desu ka?","Excuse me. How much is this shirt?"],
+    ["Staff","さんぜん はっぴゃく えん です。","三千八百円です。","San-zen happyaku en desu.","It's 3,800 yen."],
+    ["Mo","ほか の いろ は ありますか。","他の色はありますか。","Hoka no iro wa arimasu ka?","Do you have other colors?"],
+    ["Staff","しろ と くろ と あお が あります。","白と黒と青があります。","Shiro to kuro to ao ga arimasu.","We have white, black and blue."],
+    ["Mo","あお が いい です。","青がいいです。","Ao ga ii desu.","Blue is good."],
+    ["Mo","おおきい サイズ は ありますか。","大きいサイズはありますか。","Ōkii saizu wa arimasu ka?","Do you have a bigger size?"],
+    ["Staff","はい、エル サイズ が あります。","はい、エルサイズがあります。","Hai, eru saizu ga arimasu.","Yes, we have a large."],
+    ["Mo","しちゃく して も いい ですか。","試着してもいいですか。","Shichaku shite mo ii desu ka?","Can I try it on?"],
+    ["Staff","はい、どうぞ。こちら です。","はい、どうぞ。こちらです。","Hai, dōzo. Kochira desu.","Sure, this way."],
+    ["Staff","いかが ですか。","いかがですか。","Ikaga desu ka?","How is it?"],
+    ["Mo","ちょうど いい です。これ に します。","ちょうどいいです。これにします。","Chōdo ii desu. Kore ni shimasu.","It's just right. I'll take it."],
+    ["Staff","ありがとう ございます。おかいけい は こちら です。","ありがとうございます。お会計はこちらです。","Arigatō gozaimasu. Okaikei wa kochira desu.","Thank you. The register is over here."],
+    ["Staff","さんぜん はっぴゃく えん です。","三千八百円です。","San-zen happyaku en desu.","That's 3,800 yen."],
+    ["Mo","げんきん で。","現金で。","Genkin de.","Cash, please."],
+    ["Staff","よんせん えん おあずかり します。","四千円お預かりします。","Yon-sen en o-azukari shimasu.","Out of 4,000 yen."],
+    ["Staff","にひゃく えん の おかえし です。","二百円のお返しです。","Ni-hyaku en no o-kaeshi desu.","Here's 200 yen change."],
+    ["Staff","ふくろ は いりますか。","袋はいりますか。","Fukuro wa irimasu ka?","Do you need a bag?"],
+    ["Mo","だいじょうぶ です。","大丈夫です。","Daijōbu desu.","No thanks, I'm fine."],
+    ["Staff","ありがとう ございました！","ありがとうございました！","Arigatō gozaimashita!","Thank you very much!"],
+    ["Mo","ありがとう！","ありがとう！","Arigatō!","Thanks!"] ]},
+  { lesson: 6, title: "Lunch with Kenji", setting: "Mo and a coworker, Kenji, talk about hobbies over lunch.", lines: [
+    ["Kenji","モー さん、しゅみ は なん ですか。","モーさん、趣味は何ですか。","Mō-san, shumi wa nan desu ka?","Mo, what are your hobbies?"],
+    ["Mo","えいが です。えいが が だいすき です。","映画です。映画が大好きです。","Eiga desu. Eiga ga daisuki desu.","Movies. I love movies."],
+    ["Kenji","いい ですね！どんな えいが が すき ですか。","いいですね！どんな映画が好きですか。","Ii desu ne! Donna eiga ga suki desu ka?","Nice! What kind of movies do you like?"],
+    ["Mo","ロマンス が すき です。コメディ も すき です。","ロマンスが好きです。コメディも好きです。","Romansu ga suki desu. Komedi mo suki desu.","I like romance. I like comedy too."],
+    ["Kenji","にほん の えいが は どう ですか。","日本の映画はどうですか。","Nihon no eiga wa dō desu ka?","How about Japanese movies?"],
+    ["Mo","アニメ を みます。ジブリ が すき です。","アニメを見ます。ジブリが好きです。","Anime o mimasu. Jiburi ga suki desu.","I watch anime. I like Ghibli."],
+    ["Kenji","わたし も ジブリ が だいすき です！","私もジブリが大好きです！","Watashi mo Jiburi ga daisuki desu!","I love Ghibli too!"],
+    ["Mo","けんじ さん の しゅみ は？","健二さんの趣味は？","Kenji-san no shumi wa?","What's your hobby, Kenji?"],
+    ["Kenji","スポーツ です。サッカー を します。","スポーツです。サッカーをします。","Supōtsu desu. Sakkā o shimasu.","Sports. I play soccer."],
+    ["Mo","すごい！まいにち ですか。","すごい！毎日ですか。","Sugoi! Mainichi desu ka?","Amazing! Every day?"],
+    ["Kenji","いいえ、どようび だけ です。","いいえ、土曜日だけです。","Iie, doyōbi dake desu.","No, only on Saturdays."],
+    ["Kenji","モー さん は スポーツ が すき ですか。","モーさんはスポーツが好きですか。","Mō-san wa supōtsu ga suki desu ka?","Do you like sports, Mo?"],
+    ["Mo","あまり すき じゃ ない です。","あまり好きじゃないです。","Amari suki ja nai desu.","Not really."],
+    ["Mo","でも、りょうり が すき です。","でも、料理が好きです。","Demo, ryōri ga suki desu.","But I like cooking."],
+    ["Kenji","へえ！どんな りょうり を つくりますか。","へえ！どんな料理を作りますか。","Hē! Donna ryōri o tsukurimasu ka?","Oh! What kind of food do you make?"],
+    ["Mo","フィリピン りょうり です。アドボ が おいしい です よ。","フィリピン料理です。アドボが美味しいですよ。","Firipin ryōri desu. Adobo ga oishii desu yo.","Filipino food. Adobo is delicious."],
+    ["Kenji","アドボ？たべて みたい です！","アドボ？食べてみたいです！","Adobo? Tabete mitai desu!","Adobo? I want to try it!"],
+    ["Mo","こんど つくります ね。","今度作りますね。","Kondo tsukurimasu ne.","I'll make it for you next time."],
+    ["Kenji","やった！たのしみ です。","やった！楽しみです。","Yatta! Tanoshimi desu.","Yay! I'm looking forward to it."],
+    ["Kenji","にほん りょうり は すき ですか。","日本料理は好きですか。","Nihon ryōri wa suki desu ka?","Do you like Japanese food?"],
+    ["Mo","はい、だいすき です。ラーメン が いちばん すき です。","はい、大好きです。ラーメンが一番好きです。","Hai, daisuki desu. Rāmen ga ichiban suki desu.","Yes, I love it. I like ramen best."],
+    ["Kenji","わたし も！","私も！","Watashi mo!","Me too!"] ]},
+  { lesson: 7, title: "Checking in at the hotel", setting: "Mo checks in, asks about times and the Wi-Fi, then calls the front desk about the air-con.", lines: [
+    ["Staff","いらっしゃいませ。","いらっしゃいませ。","Irasshaimase.","Welcome."],
+    ["Mo","こんにちは。チェックイン を おねがいします。","こんにちは。チェックインをお願いします。","Konnichiwa. Chekku-in o onegaishimasu.","Hello. Check-in, please."],
+    ["Staff","ごよやく の おなまえ は？","ご予約のお名前は？","Go-yoyaku no o-namae wa?","The name on the reservation?"],
+    ["Mo","モー の なまえ で よやく して います。","モーの名前で予約しています。","Mō no namae de yoyaku shite imasu.","I have a reservation under Mo."],
+    ["Staff","モー さま ですね。しょうしょう おまち ください。","モー様ですね。少々お待ちください。","Mō-sama desu ne. Shōshō o-machi kudasai.","Ms./Mr. Mo. One moment, please."],
+    ["Staff","さんぱく ですね。パスポート を おねがいします。","三泊ですね。パスポートをお願いします。","San-paku desu ne. Pasupōto o onegaishimasu.","Three nights. Your passport, please."],
+    ["Mo","はい、どうぞ。","はい、どうぞ。","Hai, dōzo.","Here you go."],
+    ["Staff","おへや は ごひゃく に ばん です。","お部屋は五百二番です。","O-heya wa go-hyaku ni-ban desu.","Your room is number 502."],
+    ["Staff","こちら が かぎ です。","こちらが鍵です。","Kochira ga kagi desu.","Here is your key."],
+    ["Mo","チェックアウト は なんじ ですか。","チェックアウトは何時ですか。","Chekku-auto wa nan-ji desu ka?","What time is check-out?"],
+    ["Staff","じゅういちじ です。","十一時です。","Jū-ichi-ji desu.","Eleven o'clock."],
+    ["Mo","あさごはん は なんじ から ですか。","朝ご飯は何時からですか。","Asagohan wa nan-ji kara desu ka?","What time does breakfast start?"],
+    ["Staff","しちじ から くじ まで です。いっかい の レストラン です。","七時から九時までです。一階のレストランです。","Shichi-ji kara ku-ji made desu. Ikkai no resutoran desu.","From 7 to 9, in the restaurant on the first floor."],
+    ["Mo","ワイファイ の パスワード は なん ですか。","ワイファイのパスワードは何ですか。","Waifai no pasuwādo wa nan desu ka?","What's the Wi-Fi password?"],
+    ["Staff","この かみ に あります。","この紙にあります。","Kono kami ni arimasu.","It's on this paper."],
+    ["Mo","さいご の ひ に、にもつ を あずけて も いい ですか。","最後の日に、荷物を預けてもいいですか。","Saigo no hi ni, nimotsu o azukete mo ii desu ka?","On the last day, can I leave my luggage?"],
+    ["Staff","はい、もちろん です。","はい、もちろんです。","Hai, mochiron desu.","Yes, of course."],
+    ["Mo","もしもし、ごひゃく に ばん の モー です。","もしもし、五百二番のモーです。","Moshimoshi, go-hyaku ni-ban no Mō desu.","Hello, this is Mo in room 502."],
+    ["Mo","すみません、エアコン が つきません。","すみません、エアコンがつきません。","Sumimasen, eakon ga tsukimasen.","Sorry, the air-con won't turn on."],
+    ["Staff","もうしわけ ございません。すぐ いきます。","申し訳ございません。すぐ行きます。","Mōshiwake gozaimasen. Sugu ikimasu.","We're very sorry. We'll come right away."],
+    ["Mo","ありがとう ございます。","ありがとうございます。","Arigatō gozaimasu.","Thank you."],
+    ["Staff","なおりました。","直りました。","Naorimashita.","It's fixed now."],
+    ["Mo","たすかりました！","助かりました！","Tasukarimashita!","That's a big help!"] ]},
+  { lesson: 8, title: "Plans with Yuki", setting: "Yuki calls Mo to plan a movie and dinner for the weekend.", lines: [
+    ["Yuki","もしもし、モー さん？ゆき です。","もしもし、モーさん？ゆきです。","Moshimoshi, Mō-san? Yuki desu.","Hello, Mo? It's Yuki."],
+    ["Mo","あ、ゆき さん！こんにちは。","あ、ゆきさん！こんにちは。","A, Yuki-san! Konnichiwa.","Oh, Yuki! Hello."],
+    ["Yuki","こんしゅうまつ、ひま ですか。","今週末、暇ですか。","Konshūmatsu, hima desu ka?","Are you free this weekend?"],
+    ["Mo","どようび は ちょっと…。にちようび は ひま です。","土曜日はちょっと…。日曜日は暇です。","Doyōbi wa chotto… Nichiyōbi wa hima desu.","Saturday's a bit… I'm free on Sunday."],
+    ["Yuki","じゃあ、にちようび に いっしょに えいが を みませんか。","じゃあ、日曜日に一緒に映画を見ませんか。","Jā, nichiyōbi ni issho ni eiga o mimasen ka?","Then want to watch a movie together on Sunday?"],
+    ["Mo","いい ですね！なん の えいが ですか。","いいですね！何の映画ですか。","Ii desu ne! Nan no eiga desu ka?","Sounds good! Which movie?"],
+    ["Yuki","あたらしい ロマンス の えいが です。","新しいロマンスの映画です。","Atarashii romansu no eiga desu.","A new romance movie."],
+    ["Mo","やった！ロマンス が だいすき です。","やった！ロマンスが大好きです。","Yatta! Romansu ga daisuki desu.","Yay! I love romance."],
+    ["Mo","なんじ に しますか。","何時にしますか。","Nan-ji ni shimasu ka?","What time shall we meet?"],
+    ["Yuki","えいが は ごご さんじ はん から です。","映画は午後三時半からです。","Eiga wa gogo san-ji han kara desu.","The movie starts at 3:30 p.m."],
+    ["Yuki","さんじ に しぶや えき で あいませんか。","三時に渋谷駅で会いませんか。","San-ji ni Shibuya eki de aimasen ka?","Shall we meet at Shibuya Station at 3?"],
+    ["Mo","はい、さんじ に しぶや えき ですね。","はい、三時に渋谷駅ですね。","Hai, san-ji ni Shibuya eki desu ne.","Okay, Shibuya Station at 3."],
+    ["Yuki","えいが の あと、いっしょに ごはん を たべませんか。","映画の後、一緒にご飯を食べませんか。","Eiga no ato, issho ni gohan o tabemasen ka?","After the movie, want to eat together?"],
+    ["Mo","いい ですね！ラーメン は どう ですか。","いいですね！ラーメンはどうですか。","Ii desu ne! Rāmen wa dō desu ka?","Sounds good! How about ramen?"],
+    ["Yuki","ラーメン、いい ですね！おいしい みせ を しって います。","ラーメン、いいですね！美味しい店を知っています。","Rāmen, ii desu ne! Oishii mise o shitte imasu.","Ramen, great! I know a good place."],
+    ["Mo","たのしみ です！","楽しみです！","Tanoshimi desu!","I'm looking forward to it!"],
+    ["Yuki","あした は しごと ですか。","明日は仕事ですか。","Ashita wa shigoto desu ka?","Do you work tomorrow?"],
+    ["Mo","はい、あした は くじ から です。","はい、明日は九時からです。","Hai, ashita wa ku-ji kara desu.","Yes, tomorrow from 9."],
+    ["Yuki","がんばって ください！","頑張ってください！","Ganbatte kudasai!","Good luck!"],
+    ["Mo","ありがとう。じゃあ、にちようび に！","ありがとう。じゃあ、日曜日に！","Arigatō. Jā, nichiyōbi ni!","Thanks. See you Sunday!"],
+    ["Yuki","はい、にちようび に。じゃあ、また！","はい、日曜日に。じゃあ、また！","Hai, nichiyōbi ni. Jā, mata!","Yes, Sunday. See you!"],
+    ["Mo","またね！","またね！","Mata ne!","See you!"] ]}
+];
+
+/* ---------- Listen (podcast mode): words or conversations ---------- */
+const listen = { mode: store.get("lmode", "words"), key: "all", ckey: "0", i: 0, playing: false, run: 0, phase: "", done: false,
+  twice: store.get("twice", true), gap: store.get("gap", true), cEn: store.get("cen", true), cGap: store.get("cgap", false) };
 let wakeLock = null;
 const ICON_PLAY = '<svg width="28" height="28" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.5v11l9-5.5z" fill="currentColor"/></svg>';
 const ICON_PAUSE = '<svg width="26" height="26" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor"/></svg>';
@@ -645,11 +862,26 @@ const ICON_NEXT = '<svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="
 function listenItems() {
   return listen.key === "all" ? WORDS : listen.key === "star" ? WORDS.filter(w => stars.has(w.jp)) : WORDS.filter(w => w.lesson === +listen.key);
 }
-function speakP(text, lang, voice, r) {
+function convoOf(k) { return CONVOS.find(c => c.lesson === +k) || CONVOS[0]; }
+function listLen() { return listen.mode === "convo" ? convoOf(listen.ckey).lines.length : listenItems().length; }
+function whoLabel(w) { return w === "Mo" ? "Mo (you)" : w; }
+/* Mo and the other speaker get different voices when the phone has two Japanese voices; otherwise a different pitch. */
+function voiceFor(who) {
+  const vs = synth ? synth.getVoices().filter(v => /^ja/i.test(v.lang)) : [];
+  const me = who === "Mo";
+  if (vs.length >= 2) { const other = vs.find(v => v !== jaVoice) || vs[1]; return { voice: me ? jaVoice : other, pitch: 1 }; }
+  return { voice: jaVoice, pitch: me ? 1.15 : 0.85 };
+}
+function convoMinutes(c) {
+  let s = 0;
+  c.lines.forEach(l => { s += l[1].replace(/\s/g, "").length * 0.17 / rate + 0.5; if (listen.cEn) s += l[4].length * 0.065 + 0.6; if (listen.cGap) s += 2.6; });
+  return Math.max(1, Math.round(s / 60));
+}
+function speakP(text, lang, voice, r, pitch) {
   return new Promise(res => {
     if (!synth) return res();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang; u.rate = r; if (voice) u.voice = voice;
+    u.lang = lang; u.rate = r; u.pitch = pitch || 1; if (voice) u.voice = voice;
     let done = false; const fin = () => { if (!done) { done = true; res(); } };
     u.onend = fin; u.onerror = fin;
     synth.speak(u);
@@ -664,6 +896,23 @@ async function runListen() {
   const id = ++listen.run;
   const alive = () => listen.playing && listen.run === id;
   if (synth) synth.cancel();
+  listen.done = false;
+  if (listen.mode === "convo") {
+    const c = convoOf(listen.ckey);
+    while (alive()) {
+      if (listen.i >= c.lines.length) { listen.i = c.lines.length - 1; haltListen(); listen.done = true; renderListen(); return; }
+      const [who, , spokenJa, , en] = c.lines[listen.i];
+      renderListen();
+      const v = voiceFor(who);
+      setPhase("Japanese");
+      await speakP(spokenJa, "ja-JP", v.voice, rate, v.pitch); if (!alive()) return;
+      await wait(500); if (!alive()) return;
+      if (listen.cEn) { setPhase("English"); await speakP(en, "en-US", enVoice, 1); if (!alive()) return; await wait(600); if (!alive()) return; }
+      if (listen.cGap) { setPhase("Your turn · say it"); await wait(2600); if (!alive()) return; }
+      listen.i++;
+    }
+    return;
+  }
   while (alive()) {
     const items = listenItems();
     if (!items.length) { haltListen(); renderListen(); return; }
@@ -681,14 +930,55 @@ async function runListen() {
   }
 }
 function haltListen() { listen.playing = false; listen.run++; if (synth) synth.cancel(); releaseWake(); listen.phase = ""; }
-function playListen() { if (!synth) return; listen.playing = true; requestWake(); runListen(); }
+function playListen() {
+  if (!synth) return;
+  if (listen.done) { listen.i = 0; listen.done = false; }
+  listen.playing = true; requestWake(); runListen();
+}
 function jumpListen(i) {
-  const n = listenItems().length; if (!n) return;
-  listen.i = (i + n) % n;
+  const n = listLen(); if (!n) return;
+  listen.done = false;
+  listen.i = listen.mode === "convo" ? Math.max(0, Math.min(n - 1, i)) : (i + n) % n;
   if (listen.playing) runListen(); else renderListen();
+}
+function transport() {
+  return `<div class="transport">
+        <button class="tbtn" id="lprev" aria-label="Previous">${ICON_PREV}</button>
+        <button class="tbtn main" id="lplay" aria-label="${listen.playing ? "Pause" : "Play"}">${listen.playing ? ICON_PAUSE : ICON_PLAY}</button>
+        <button class="tbtn" id="lnext" aria-label="Next">${ICON_NEXT}</button>
+      </div>`;
 }
 function renderListen() {
   setTitle("聴", "Listen");
+  const modeChips = `<div class="chips" role="group" aria-label="What to listen to"><button class="chip" data-lmode="words" aria-pressed="${listen.mode === "words"}">Words</button><button class="chip" data-lmode="convo" aria-pressed="${listen.mode === "convo"}">Conversations</button></div>`;
+  const keepOpen = "Keep this screen open while you listen: your phone stops the voice when the screen locks or you switch apps.";
+  if (listen.mode === "convo") {
+    const c = convoOf(listen.ckey);
+    if (listen.i >= c.lines.length) listen.i = 0;
+    const [who, kana, , ro, en] = c.lines[listen.i];
+    const status = listen.playing ? esc(listen.phase) : listen.done ? "Finished · tap play to hear it again" : "Paused";
+    const chips = CONVOS.map(cv => `<button class="chip" data-ckey="${cv.lesson}" aria-pressed="${String(cv.lesson) === String(listen.ckey)}">L${cv.lesson + 1} ${esc(cv.title)}</button>`).join("");
+    const player = `<div class="player">
+      <div class="label">${esc(c.title)}</div>
+      <div class="phase" id="phase">${status}</div>
+      <div class="who">${esc(whoLabel(who))}</div>
+      <div class="big" lang="ja" style="font-size:1.6rem">${kana}</div>
+      <div class="ro">${ro}</div>
+      <div class="en">${esc(en)}</div>
+      <div class="count"><span>Line ${listen.i + 1} of ${c.lines.length}</span><span>about ${convoMinutes(c)} min</span></div>
+      <div class="progress"><i style="width:${(listen.i + 1) / c.lines.length * 100}%"></i></div>
+      ${transport()}
+    </div>`;
+    const opts = `<div class="note-card">
+      <label class="toggle" for="lt-cen"><span>English after each line</span><input type="checkbox" id="lt-cen" ${listen.cEn ? "checked" : ""}></label>
+      <label class="toggle" for="lt-cgap"><span>Pause so I can repeat each line</span><input type="checkbox" id="lt-cgap" ${listen.cGap ? "checked" : ""}></label>
+      <p class="muted" style="font-size:0.85rem;margin:6px 0 0">Plays the whole conversation once. ${keepOpen}</p>
+    </div>`;
+    const transcript = `<section><h3>Transcript</h3><div class="list">${c.lines.map((l, i) => `<button class="qrow${i === listen.i ? " cur" : ""}" data-jump="${i}"><span class="who">${esc(whoLabel(l[0]))}</span><span class="jp" lang="ja" style="display:block">${l[1]}</span><div class="meta"><span class="ro">${l[3]}</span><span class="en">${esc(l[4])}</span></div></button>`).join("")}</div></section>`;
+    view.innerHTML = voiceWarn() + modeChips + `<div class="chips">${chips}</div>` +
+      `<p class="intro" style="margin:0">${esc(c.setting)}</p>` + player + opts + transcript;
+    return;
+  }
   const items = listenItems();
   if (listen.i >= items.length) listen.i = 0;
   const w = items[listen.i];
@@ -700,19 +990,15 @@ function renderListen() {
       <div class="en">${esc(w.en)}</div>
       <div class="count"><span>${listen.i + 1} of ${items.length}</span><span>Lesson ${w.lesson + 1}</span></div>
       <div class="progress"><i style="width:${(listen.i + 1) / items.length * 100}%"></i></div>
-      <div class="transport">
-        <button class="tbtn" id="lprev" aria-label="Previous word">${ICON_PREV}</button>
-        <button class="tbtn main" id="lplay" aria-label="${listen.playing ? "Pause" : "Play"}">${listen.playing ? ICON_PAUSE : ICON_PLAY}</button>
-        <button class="tbtn" id="lnext" aria-label="Next word">${ICON_NEXT}</button>
-      </div>
+      ${transport()}
     </div>` : `<div class="empty">${listen.key === "star" ? "Tap ★ on any word to add it to your Saved list." : "No words here yet."}</div>`;
   const opts = `<div class="note-card">
       <label class="toggle" for="lt-twice"><span>Repeat the Japanese after the English</span><input type="checkbox" id="lt-twice" ${listen.twice ? "checked" : ""}></label>
       <label class="toggle" for="lt-gap"><span>Pause so I can say it out loud</span><input type="checkbox" id="lt-gap" ${listen.gap ? "checked" : ""}></label>
-      <p class="muted" style="font-size:0.85rem;margin:6px 0 0">Plays through the list and starts again at the end. Keep this screen open while you listen: your phone stops the voice when the screen locks or you switch apps.</p>
+      <p class="muted" style="font-size:0.85rem;margin:6px 0 0">Plays through the list and starts again at the end. ${keepOpen}</p>
     </div>`;
   const queue = items.length ? `<section><h3>Up next</h3><div class="list">${items.map((q, i) => `<button class="qrow${i === listen.i ? " cur" : ""}" data-jump="${i}"><span class="jp" lang="ja">${q.jp}</span><div class="meta"><span class="ro">${q.ro}</span><span class="en">${esc(q.en)}</span></div></button>`).join("")}</div></section>` : "";
-  view.innerHTML = voiceWarn() +
+  view.innerHTML = voiceWarn() + modeChips +
     `<div class="chips">${chips.map(([k, t]) => `<button class="chip" data-lkey="${k}" aria-pressed="${listen.key === k}">${t}</button>`).join("")}</div>` +
     player + opts + queue;
 }
@@ -742,6 +1028,9 @@ view.addEventListener("click", e => {
     if (tab === "book") renderBook(); else star.setAttribute("aria-pressed", stars.has(k));
     return;
   }
+  const lm = t.closest("[data-lmode]"); if (lm) { if (listen.playing) haltListen(); listen.mode = lm.dataset.lmode; store.set("lmode", listen.mode); listen.i = 0; listen.done = false; renderListen(); return; }
+  const ck = t.closest("[data-ckey]"); if (ck) { listen.ckey = ck.dataset.ckey; listen.i = 0; listen.done = false; listen.playing ? runListen() : renderListen(); return; }
+  const cv = t.closest("[data-convo]"); if (cv) { listen.mode = "convo"; store.set("lmode", "convo"); listen.ckey = cv.dataset.convo; listen.i = 0; listen.done = false; tab = "listen"; store.set("tab", tab); render(); playListen(); view.scrollTop = 0; return; }
   const lk = t.closest("[data-lkey]"); if (lk) { listen.key = lk.dataset.lkey; listen.i = 0; listen.playing ? runListen() : renderListen(); return; }
   if (t.closest("#lplay")) { listen.playing ? (haltListen(), renderListen()) : playListen(); return; }
   if (t.closest("#lnext")) { jumpListen(listen.i + 1); return; }
@@ -762,6 +1051,8 @@ view.addEventListener("click", e => {
 view.addEventListener("change", e => {
   if (e.target.id === "lt-twice") { listen.twice = e.target.checked; store.set("twice", listen.twice); }
   if (e.target.id === "lt-gap") { listen.gap = e.target.checked; store.set("gap", listen.gap); }
+  if (e.target.id === "lt-cen") { listen.cEn = e.target.checked; store.set("cen", listen.cEn); if (!listen.playing) renderListen(); }
+  if (e.target.id === "lt-cgap") { listen.cGap = e.target.checked; store.set("cgap", listen.cGap); if (!listen.playing) renderListen(); }
 });
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && listen.playing) requestWake(); });
 view.addEventListener("input", e => { if (e.target.id === "q") { bookQuery = e.target.value; renderBook(); } });
