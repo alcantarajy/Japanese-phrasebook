@@ -261,8 +261,44 @@ const LESSONS = [
         ["You","よろしくおねがいします","Yoroshiku onegaishimasu."],
         ["Tanaka","こちらこそ、よろしくおねがいします","Kochira koso, yoroshiku onegaishimasu."] ]}
     ]}
+  ,{ id: "l6", kana: "買", title: "Shopping and numbers", sub: "Counting, prices, sizes, paying",
+    intro: "Count from 1 to 10, read prices in yen, ask for sizes and colors, and pay at the register.",
+    blocks: [
+      { type: "words", title: "Numbers 1–10", items: [
+        ["いち","ichi","1"],["に","ni","2"],["さん","san","3"],["よん","yon","4"],["ご","go","5"],
+        ["ろく","roku","6"],["なな","nana","7"],["はち","hachi","8"],["きゅう","kyū","9"],["じゅう","jū","10"] ]},
+      { type: "words", title: "Prices", items: [
+        ["ひゃくえん","hyaku-en","¥100"],["さんびゃくえん","san-byaku-en","¥300"],
+        ["せんえん","sen-en","¥1,000"],["さんぜんえん","san-zen-en","¥3,000"],
+        ["ごせんえん","go-sen-en","¥5,000"],["いちまんえん","ichi-man-en","¥10,000"] ]},
+      { type: "note", title: "How big numbers work", html: "<ul><li>Add <b>えん (en)</b> for yen: <i>hyaku-en</i> is ¥100.</li><li>After 3, hundred becomes <i>byaku</i> and thousand becomes <i>zen</i>: <i>san-byaku</i>, <i>san-zen</i>.</li><li>Japanese counts in ten-thousands (<i>man</i>). ¥20,000 is <i>ni-man-en</i>, “two ten-thousands”.</li></ul>" },
+      { type: "words", title: "In the shop", items: [
+        ["みているだけです","mite iru dake desu","I'm just looking"],
+        ["おおきい","ōkii","big"],["ちいさい","chiisai","small"],
+        ["おおきいサイズはありますか","ōkii saizu wa arimasu ka","do you have a bigger size?"],
+        ["ほかのいろはありますか","hoka no iro wa arimasu ka","do you have other colors?"],
+        ["しちゃくしてもいいですか","shichaku shite mo ii desu ka","can I try it on?"],
+        ["これにします","kore ni shimasu","I'll take this"] ]},
+      { type: "words", title: "Paying", items: [
+        ["カードでいいですか","kādo de ii desu ka","is card okay?"],
+        ["げんきんで","genkin de","with cash"],
+        ["ふくろはいりますか","fukuro wa irimasu ka","do you need a bag? (you'll hear this)"],
+        ["だいじょうぶです","daijōbu desu","I'm fine / no thanks"] ]},
+      { type: "note", title: "Grammar: ～wa arimasu ka", html: "<p><b>～はありますか</b> means “Do you have ～?” Put the thing first.</p><ul><li><i>Ōkii saizu <b>wa arimasu ka</b>?</i> “Do you have a big size?”</li><li><i>Mizu <b>wa arimasu ka</b>?</i> “Do you have water?”</li></ul>" },
+      { type: "note", title: "Useful tip", html: "<p><b>Daijōbu desu</b> is the polite “no thanks”. When the cashier offers a bag, receipt or straw you don't need, say it with a small wave of the hand.</p>" },
+      { type: "dialog", title: "Buying a shirt", items: [
+        ["Staff","いらっしゃいませ！","Irasshaimase!"],
+        ["You","みているだけです","Mite iru dake desu."],
+        ["You","すみません、これはいくらですか","Sumimasen, kore wa ikura desu ka?"],
+        ["Staff","さんぜんえんです","San-zen-en desu."],
+        ["You","おおきいサイズはありますか","Ōkii saizu wa arimasu ka?"],
+        ["Staff","はい、あります","Hai, arimasu."],
+        ["You","これにします。カードでいいですか","Kore ni shimasu. Kādo de ii desu ka?"],
+        ["Staff","はい。ふくろはいりますか","Hai. Fukuro wa irimasu ka?"],
+        ["You","だいじょうぶです","Daijōbu desu."] ]}
+    ]}
 ];
-const NEXT = { kana: "買", title: "Shopping and numbers", sub: "Next lesson · travel" };
+const NEXT = { kana: "好", title: "Likes and hobbies", sub: "Next lesson · daily conversation" };
 
 /* What the voice reads. Kanji help the phone's voice split words, so particles like は are said "wa". */
 const SAY = {
@@ -294,7 +330,22 @@ const SAY = {
   "パプアニューギニアにすんでいます": "パプアニューギニアに住んでいます",
   "おなまえは？": "お名前は？",
   "よろしくおねがいします": "よろしくお願いします",
-  "こちらこそ、よろしくおねがいします": "こちらこそ、よろしくお願いします"
+  "こちらこそ、よろしくおねがいします": "こちらこそ、よろしくお願いします",
+  "ひゃくえん": "百円", "さんびゃくえん": "三百円", "せんえん": "千円",
+  "さんぜんえん": "三千円", "ごせんえん": "五千円", "いちまんえん": "一万円",
+  "さんぜんえんです": "三千円です",
+  "いち": "一", "に": "二", "さん": "三", "よん": "四", "ご": "五",
+  "ろく": "六", "なな": "七", "はち": "八", "きゅう": "九", "じゅう": "十",
+  "みているだけです": "見ているだけです",
+  "おおきい": "大きい", "ちいさい": "小さい",
+  "おおきいサイズはありますか": "大きいサイズはありますか",
+  "ほかのいろはありますか": "他の色はありますか",
+  "しちゃくしてもいいですか": "試着してもいいですか",
+  "げんきんで": "現金で",
+  "ふくろはいりますか": "袋はいりますか",
+  "はい。ふくろはいりますか": "はい。袋はいりますか",
+  "だいじょうぶです": "大丈夫です",
+  "すみません、これはいくらですか": "すみません、これはいくらですか"
 };
 const spoken = jp => SAY[jp] || jp;
 
