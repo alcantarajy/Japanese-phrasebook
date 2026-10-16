@@ -339,6 +339,11 @@ const LESSONS = [
         ["にもつをあずけてもいいですか","nimotsu o azukete mo ii desu ka","can I leave my luggage?"],
         ["ワイファイのパスワードはなんですか","waifai no pasuwādo wa nan desu ka","what's the Wi-Fi password?"],
         ["エアコンがつきません","eakon ga tsukimasen","the air-con won't turn on"] ]},
+      { type: "words", title: "Taking photos", items: [
+        ["しゃしんをとってもいいですか","shashin o totte mo ii desu ka","may I take a photo?"],
+        ["はい、どうぞ","hai, dōzo","yes, go ahead"],
+        ["すみません、ちょっと…","sumimasen, chotto…","sorry, that's a bit… (a polite no)"],
+        ["撮影禁止","satsuei kinshi","no photography (sign)"] ]},
       { type: "words", title: "Asking about times", items: [
         ["チェックアウトはなんじですか","chekku-auto wa nan-ji desu ka","what time is check-out?"],
         ["あさごはんはなんじからですか","asagohan wa nan-ji kara desu ka","what time does breakfast start?"],
@@ -356,8 +361,42 @@ const LESSONS = [
         ["Staff","しちじからです","Shichi-ji kara desu."],
         ["You","ありがとうございます","Arigatō gozaimasu!"] ]}
     ]}
+  ,{ id: "l9", kana: "曜", title: "Days, time and making plans", sub: "Daily conversation · inviting people out",
+    intro: "Talk about today and tomorrow, name the days of the week, tell the time, and invite someone out or politely say no.",
+    blocks: [
+      { type: "words", title: "When?", items: [
+        ["きのう","kinō","yesterday"],["きょう","kyō","today"],["あした","ashita","tomorrow"],
+        ["こんしゅうまつ","konshūmatsu","this weekend"],["なんようびですか","nan-yōbi desu ka","what day is it?"] ]},
+      { type: "words", title: "Days of the week", items: [
+        ["げつようび","getsuyōbi","Monday"],["かようび","kayōbi","Tuesday"],["すいようび","suiyōbi","Wednesday"],
+        ["もくようび","mokuyōbi","Thursday"],["きんようび","kin'yōbi","Friday"],["どようび","doyōbi","Saturday"],
+        ["にちようび","nichiyōbi","Sunday"] ]},
+      { type: "words", title: "Telling the time", items: [
+        ["いま、なんじですか","ima, nan-ji desu ka","what time is it now?"],
+        ["ごぜん","gozen","a.m. (before the time)"],["ごご","gogo","p.m. (before the time)"],
+        ["ごごさんじはん","gogo san-ji han","3:30 p.m."] ]},
+      { type: "words", title: "Making plans", items: [
+        ["いっしょにえいがをみませんか","issho ni eiga o mimasen ka","want to watch a movie together?"],
+        ["いっしょにごはんをたべませんか","issho ni gohan o tabemasen ka","want to eat together?"],
+        ["どようびはどうですか","doyōbi wa dō desu ka","how about Saturday?"],
+        ["どようびはちょっと…","doyōbi wa chotto…","Saturday's a bit… (polite no)"],
+        ["なんじにしますか","nan-ji ni shimasu ka","what time shall we meet?"],
+        ["じゃあ、さんじに","jā, san-ji ni","okay, at 3 then"],
+        ["たのしみです","tanoshimi desu","I'm looking forward to it"] ]},
+      { type: "note", title: "Grammar: ～masen ka", html: "<p>Change <i>-masu</i> to <b>-masen ka</b> to invite someone. It literally means “won't you…?”, softer than a direct question, like Tagalog <i>Gusto mo bang…?</i></p><ul><li><i>mimasu</i> (watch) → <i><b>mimasen ka?</b></i> (want to watch?)</li><li><i>tabemasu</i> (eat) → <i><b>tabemasen ka?</b></i> (want to eat?)</li></ul>" },
+      { type: "note", title: "Grammar: ni for times", html: "<p>Use <b>に (ni)</b> after clock times and days: <i>san-ji <b>ni</b></i> (at 3), <i>doyōbi <b>ni</b></i> (on Saturday).</p><p>Don't use it with <i>kyō</i>, <i>ashita</i> or <i>kinō</i>.</p>" },
+      { type: "dialog", title: "Planning a movie", items: [
+        ["Tanaka","こんしゅうまつ、いっしょにえいがをみませんか","Konshūmatsu, issho ni eiga o mimasen ka?"],
+        ["You","いいですね！なんようびですか","Ii desu ne! Nan-yōbi desu ka?"],
+        ["Tanaka","どようびはどうですか","Doyōbi wa dō desu ka?"],
+        ["You","どようびはちょっと…にちようびはどうですか","Doyōbi wa chotto… Nichiyōbi wa dō desu ka?"],
+        ["Tanaka","いいですよ。なんじにしますか","Ii desu yo. Nan-ji ni shimasu ka?"],
+        ["You","ごごさんじはどうですか","Gogo san-ji wa dō desu ka?"],
+        ["Tanaka","じゃあ、さんじに","Jā, san-ji ni."],
+        ["You","たのしみです！","Tanoshimi desu!"] ]}
+    ]}
 ];
-const NEXT = { kana: "曜", title: "Days, time and making plans", sub: "Next lesson · daily conversation" };
+const NEXT = { kana: "助", title: "Help and emergencies", sub: "Next lesson · travel" };
 
 /* What the voice reads. Kanji help the phone's voice split words, so particles like は are said "wa". */
 const SAY = {
@@ -426,7 +465,23 @@ const SAY = {
   "はい。チェックアウトはなんじですか": "はい。チェックアウトは何時ですか",
   "あさごはんはなんじからですか": "朝ご飯は何時からですか",
   "さんじ": "三時", "しちじ": "七時", "くじ": "九時", "じゅうじ": "十時", "じゅういちじ": "十一時",
-  "じゅういちじです": "十一時です", "しちじからです": "七時からです"
+  "じゅういちじです": "十一時です", "しちじからです": "七時からです",
+  "しゃしんをとってもいいですか": "写真を撮ってもいいですか",
+  "きのう": "昨日", "きょう": "今日", "あした": "明日", "こんしゅうまつ": "今週末",
+  "なんようびですか": "何曜日ですか",
+  "げつようび": "月曜日", "かようび": "火曜日", "すいようび": "水曜日", "もくようび": "木曜日",
+  "きんようび": "金曜日", "どようび": "土曜日", "にちようび": "日曜日",
+  "いま、なんじですか": "今、何時ですか", "ごぜん": "午前", "ごご": "午後", "ごごさんじはん": "午後三時半",
+  "いっしょにえいがをみませんか": "一緒に映画を見ませんか",
+  "いっしょにごはんをたべませんか": "一緒にご飯を食べませんか",
+  "どようびはどうですか": "土曜日はどうですか", "どようびはちょっと…": "土曜日はちょっと…",
+  "なんじにしますか": "何時にしますか", "じゃあ、さんじに": "じゃあ、三時に", "たのしみです": "楽しみです",
+  "こんしゅうまつ、いっしょにえいがをみませんか": "今週末、一緒に映画を見ませんか",
+  "いいですね！なんようびですか": "いいですね！何曜日ですか",
+  "どようびはちょっと…にちようびはどうですか": "土曜日はちょっと…日曜日はどうですか",
+  "いいですよ。なんじにしますか": "いいですよ。何時にしますか",
+  "ごごさんじはどうですか": "午後三時はどうですか",
+  "たのしみです！": "楽しみです！"
 };
 const spoken = jp => SAY[jp] || jp;
 
