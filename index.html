@@ -310,6 +310,13 @@ const LESSONS = [
         ["しゅみはりょこうです","shumi wa ryokō desu","my hobby is traveling"],
         ["りょうり","ryōri","cooking"],["りょこう","ryokō","travel"],["おんがく","ongaku","music"],
         ["えいが","eiga","movies"],["どくしょ","dokusho","reading"],["スポーツ","supōtsu","sports"] ]},
+      { type: "words", title: "Movies and Mo's answers", items: [
+        ["しゅみはえいがです","shumi wa eiga desu","my hobby is movies"],
+        ["にほんがすきです","Nihon ga suki desu","I like Japan"],
+        ["どんなえいががすきですか","donna eiga ga suki desu ka","what kind of movies do you like?"],
+        ["アクション","akushon","action"],["コメディ","komedi","comedy"],["ホラー","horā","horror"],
+        ["アニメ","anime","anime"],["ロマンス","romansu","romance"],
+        ["ロマンスがすきです","romansu ga suki desu","I like romance movies"] ]},
       { type: "note", title: "Grammar: ga and mo", html: "<ul><li><b>が (ga)</b> marks the thing you like: <i>Ongaku <b>ga</b> suki desu</i>, “I like music”. Like Tagalog <i>gusto ko <b>ang</b> musika</i>.</li><li><b>も (mo)</b> means “also” and replaces が: <i>Eiga <b>mo</b> suki desu</i>, “I also like movies”.</li><li><i>Watashi <b>mo</b></i> means “me too”, like <i>ako rin</i>.</li></ul>" },
       { type: "note", title: "Culture tip: -san", html: "<p>Add <b>さん (-san)</b> to other people's names, like <i>Tanaka-san</i>, but never to your own.</p><p><i>Tanaka-san wa?</i> means “And you?”. Use it to turn any question back to the other person.</p>" },
       { type: "dialog", title: "Talking about hobbies", items: [
@@ -321,8 +328,36 @@ const LESSONS = [
         ["You","わたしもおんがくがすきです！","Watashi mo ongaku ga suki desu!"],
         ["Tanaka","そうですか！","Sō desu ka!"] ]}
     ]}
+  ,{ id: "l8", kana: "宿", title: "Hotel check-in", sub: "Front desk, times, small problems",
+    intro: "Check in with your reservation, ask about check-out and breakfast times, leave your bags, and report a problem in your room.",
+    blocks: [
+      { type: "words", title: "At the front desk", items: [
+        ["チェックインをおねがいします","chekku-in o onegaishimasu","check-in, please"],
+        ["モーのなまえでよやくしています","Mō no namae de yoyaku shite imasu","I have a reservation under Mo"],
+        ["パスポートをおねがいします","pasupōto o onegaishimasu","your passport, please (you'll hear this)"],
+        ["へや","heya","room"],["かぎ","kagi","key"],
+        ["にもつをあずけてもいいですか","nimotsu o azukete mo ii desu ka","can I leave my luggage?"],
+        ["ワイファイのパスワードはなんですか","waifai no pasuwādo wa nan desu ka","what's the Wi-Fi password?"],
+        ["エアコンがつきません","eakon ga tsukimasen","the air-con won't turn on"] ]},
+      { type: "words", title: "Asking about times", items: [
+        ["チェックアウトはなんじですか","chekku-auto wa nan-ji desu ka","what time is check-out?"],
+        ["あさごはんはなんじからですか","asagohan wa nan-ji kara desu ka","what time does breakfast start?"],
+        ["さんじ","san-ji","3:00"],["しちじ","shichi-ji","7:00 (not nana-ji)"],["くじ","ku-ji","9:00 (not kyū-ji)"],
+        ["じゅうじ","jū-ji","10:00"],["じゅういちじ","jū-ichi-ji","11:00"] ]},
+      { type: "note", title: "Grammar: ～te mo ii desu ka", html: "<p><b>～てもいいですか</b> means “Is it okay if I ～?”, like Tagalog <i>Pwede bang ～?</i></p><ul><li><i>Shichaku shite mo ii desu ka?</i> “Can I try it on?” (Lesson 6)</li><li><i>Nimotsu o azukete mo ii desu ka?</i> “Can I leave my luggage?”</li></ul>" },
+      { type: "note", title: "Travel tip", html: "<ul><li><b>Early arrival?</b> Most hotels hold your bags before check-in, which is usually 3:00 pm.</li><li><b>Staying at a ryokan</b> (traditional inn)? Take your shoes off at the entrance and wear the slippers they give you.</li></ul>" },
+      { type: "dialog", title: "Checking in", items: [
+        ["Staff","いらっしゃいませ","Irasshaimase."],
+        ["You","チェックインをおねがいします。モーのなまえでよやくしています","Chekku-in o onegaishimasu. Mō no namae de yoyaku shite imasu."],
+        ["Staff","パスポートをおねがいします","Pasupōto o onegaishimasu."],
+        ["You","はい。チェックアウトはなんじですか","Hai. Chekku-auto wa nan-ji desu ka?"],
+        ["Staff","じゅういちじです","Jū-ichi-ji desu."],
+        ["You","あさごはんはなんじからですか","Asagohan wa nan-ji kara desu ka?"],
+        ["Staff","しちじからです","Shichi-ji kara desu."],
+        ["You","ありがとうございます","Arigatō gozaimasu!"] ]}
+    ]}
 ];
-const NEXT = { kana: "宿", title: "Hotel check-in", sub: "Next lesson · travel" };
+const NEXT = { kana: "曜", title: "Days, time and making plans", sub: "Next lesson · daily conversation" };
 
 /* What the voice reads. Kanji help the phone's voice split words, so particles like は are said "wa". */
 const SAY = {
@@ -377,7 +412,21 @@ const SAY = {
   "しゅみはなんですか": "趣味は何ですか", "しゅみはりょこうです": "趣味は旅行です",
   "りょうり": "料理", "りょこう": "旅行", "おんがく": "音楽", "えいが": "映画", "どくしょ": "読書",
   "りょうりです": "料理です", "たなかさんは？": "田中さんは？",
-  "おんがくがすきです": "音楽が好きです", "わたしもおんがくがすきです！": "私も音楽が好きです！"
+  "おんがくがすきです": "音楽が好きです", "わたしもおんがくがすきです！": "私も音楽が好きです！",
+  "しゅみはえいがです": "趣味は映画です", "にほんがすきです": "日本が好きです",
+  "どんなえいががすきですか": "どんな映画が好きですか", "ロマンスがすきです": "ロマンスが好きです",
+  "モーのなまえでよやくしています": "モーの名前で予約しています",
+  "チェックインをおねがいします。モーのなまえでよやくしています": "チェックインをお願いします。モーの名前で予約しています",
+  "チェックインをおねがいします": "チェックインをお願いします",
+  "パスポートをおねがいします": "パスポートをお願いします",
+  "へや": "部屋", "かぎ": "鍵",
+  "にもつをあずけてもいいですか": "荷物を預けてもいいですか",
+  "ワイファイのパスワードはなんですか": "ワイファイのパスワードは何ですか",
+  "チェックアウトはなんじですか": "チェックアウトは何時ですか",
+  "はい。チェックアウトはなんじですか": "はい。チェックアウトは何時ですか",
+  "あさごはんはなんじからですか": "朝ご飯は何時からですか",
+  "さんじ": "三時", "しちじ": "七時", "くじ": "九時", "じゅうじ": "十時", "じゅういちじ": "十一時",
+  "じゅういちじです": "十一時です", "しちじからです": "七時からです"
 };
 const spoken = jp => SAY[jp] || jp;
 
