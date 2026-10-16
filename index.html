@@ -232,8 +232,37 @@ const LESSONS = [
         ["Staff","はい、いきます","Hai, ikimasu."],
         ["You","ありがとうございます","Arigatō gozaimasu!"] ]}
     ]}
+  ,{ id: "l5", kana: "話", title: "Greetings and introducing yourself", sub: "Daily conversation · meeting people",
+    intro: "Greetings for every time of day, asking how someone is, and introducing yourself when you meet someone new.",
+    blocks: [
+      { type: "words", title: "Greetings through the day", items: [
+        ["おはようございます","ohayō gozaimasu","good morning"],["こんにちは","konnichiwa","hello / good afternoon"],
+        ["こんばんは","konbanwa","good evening"],["おやすみなさい","oyasuminasai","good night"],
+        ["じゃあ、また","jā, mata","see you!"],["さようなら","sayōnara","goodbye (sounds final)"] ]},
+      { type: "words", title: "How are you?", items: [
+        ["おげんきですか","o-genki desu ka","how are you?"],["はい、げんきです","hai, genki desu","I'm fine"],
+        ["まあまあです","māmā desu","so-so"] ]},
+      { type: "words", title: "Introducing yourself", items: [
+        ["はじめまして","hajimemashite","nice to meet you (first meeting)"],
+        ["わたしはモーです","watashi wa Mō desu","I'm Mo"],
+        ["フィリピンからきました","Firipin kara kimashita","I'm from the Philippines"],
+        ["パプアニューギニアにすんでいます","Papua Nyūginia ni sunde imasu","I live in Papua New Guinea"],
+        ["おなまえは？","o-namae wa?","what's your name?"],
+        ["そうですか","sō desu ka","oh, really? / I see"],
+        ["よろしくおねがいします","yoroshiku onegaishimasu","nice to meet you (end of an intro)"],
+        ["こちらこそ","kochira koso","likewise"] ]},
+      { type: "note", title: "Grammar: watashi wa ＿ desu", html: "<p><b>わたしは＿です</b> means “I am ＿”. It's the same は (wa) topic marker: <i>Watashi <b>wa</b> Mō desu</i> is “As for me, I'm Mo.”</p><p>Once people know you mean yourself, Japanese usually drops <i>watashi wa</i>. Just <i>Mō desu</i> sounds natural.</p>" },
+      { type: "note", title: "Culture tip", html: "<ul><li><b>Add a small bow</b> when you say <i>hajimemashite</i>.</li><li><b>Yoroshiku onegaishimasu</b> has no exact English match. It means roughly “glad to meet you, please be kind to me”, and politely closes any introduction.</li><li><b>Ohayō gozaimasu</b> is polite. With close friends, just <i>ohayō</i>.</li></ul>" },
+      { type: "dialog", title: "Meeting someone new", items: [
+        ["You","はじめまして。わたしはモーです","Hajimemashite. Watashi wa Mō desu."],
+        ["Tanaka","はじめまして。たなかです","Hajimemashite. Tanaka desu."],
+        ["You","フィリピンからきました","Firipin kara kimashita."],
+        ["Tanaka","そうですか！","Sō desu ka!"],
+        ["You","よろしくおねがいします","Yoroshiku onegaishimasu."],
+        ["Tanaka","こちらこそ、よろしくおねがいします","Kochira koso, yoroshiku onegaishimasu."] ]}
+    ]}
 ];
-const NEXT = { kana: "話", title: "Greetings and introducing yourself", sub: "Next lesson · daily conversation" };
+const NEXT = { kana: "買", title: "Shopping and numbers", sub: "Next lesson · travel" };
 
 /* What the voice reads. Kanji help the phone's voice split words, so particles like は are said "wa". */
 const SAY = {
@@ -255,7 +284,17 @@ const SAY = {
   "なんばんせんですか": "何番線ですか",
   "さんばんせんです": "三番線です",
   "はい、いきます": "はい、行きます",
-  "ちずでおしえてください": "地図で教えてください"
+  "ちずでおしえてください": "地図で教えてください",
+  "おげんきですか": "お元気ですか",
+  "はい、げんきです": "はい、元気です",
+  "わたしはモーです": "私はモーです",
+  "はじめまして。わたしはモーです": "初めまして。私はモーです",
+  "はじめまして。たなかです": "初めまして。田中です",
+  "フィリピンからきました": "フィリピンから来ました",
+  "パプアニューギニアにすんでいます": "パプアニューギニアに住んでいます",
+  "おなまえは？": "お名前は？",
+  "よろしくおねがいします": "よろしくお願いします",
+  "こちらこそ、よろしくおねがいします": "こちらこそ、よろしくお願いします"
 };
 const spoken = jp => SAY[jp] || jp;
 
