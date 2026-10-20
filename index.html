@@ -395,8 +395,39 @@ const LESSONS = [
         ["Tanaka","じゃあ、さんじに","Jā, san-ji ni."],
         ["You","たのしみです！","Tanoshimi desu!"] ]}
     ]}
+  ,{ id: "l10", kana: "助", title: "Help and emergencies", sub: "Lost items, feeling sick, calling for help",
+    intro: "Ask for help, report something lost, explain that you feel sick, and know who to call in Japan.",
+    blocks: [
+      { type: "words", title: "Emergencies", items: [
+        ["たすけて！","tasukete!","help!"],
+        ["きゅうきゅうしゃをよんでください","kyūkyūsha o yonde kudasai","please call an ambulance"],
+        ["けいさつをよんでください","keisatsu o yonde kudasai","please call the police"],
+        ["じしん","jishin","earthquake"],
+        ["えいごがはなせるひとはいますか","eigo ga hanaseru hito wa imasu ka","is there anyone who speaks English?"],
+        ["ゆっくりおねがいします","yukkuri onegaishimasu","slowly, please"] ]},
+      { type: "words", title: "Lost something", items: [
+        ["さいふをなくしました","saifu o nakushimashita","I lost my wallet"],
+        ["パスポートをなくしました","pasupōto o nakushimashita","I lost my passport"],
+        ["こうばんはどこですか","kōban wa doko desu ka","where's the police box?"] ]},
+      { type: "words", title: "Feeling sick", items: [
+        ["ぐあいがわるいです","guai ga warui desu","I feel sick"],
+        ["あたまがいたいです","atama ga itai desu","I have a headache"],
+        ["おなかがいたいです","onaka ga itai desu","I have a stomachache"],
+        ["ねつがあります","netsu ga arimasu","I have a fever"],
+        ["ドラッグストアはどこですか","doraggu sutoa wa doko desu ka","where's a drugstore?"],
+        ["びょういんはどこですか","byōin wa doko desu ka","where's the hospital?"],
+        ["おだいじに","o-daiji ni","take care of yourself (you'll hear this)"] ]},
+      { type: "note", title: "Grammar", html: "<ul><li><b>～てください</b> means “please do ～”: <i>yonde kudasai</i> (please call), <i>kaite kudasai</i> (please write).</li><li><b>～がいたいです</b> means “my ～ hurts”. Swap in a body part: <i>atama</i> (head), <i>onaka</i> (stomach), <i>nodo</i> (throat), <i>ashi</i> (leg or foot).</li></ul>" },
+      { type: "note", title: "Numbers to remember in Japan", html: "<ul><li><b>110</b> for the police.</li><li><b>119</b> for an ambulance or fire.</li><li><b>交番 (kōban)</b> are small police boxes near most stations. Officers help with lost items and directions.</li></ul>" },
+      { type: "dialog", title: "At the police box", items: [
+        ["You","すみません！さいふをなくしました","Sumimasen! Saifu o nakushimashita."],
+        ["Officer","どこでなくしましたか","Doko de nakushimashita ka?"],
+        ["You","たぶんでんしゃのなかです","Tabun densha no naka desu. (Probably on the train.)"],
+        ["Officer","わかりました。えきにでんわします","Wakarimashita. Eki ni denwa shimasu."],
+        ["You","ありがとうございます","Arigatō gozaimasu!"] ]}
+    ]}
 ];
-const NEXT = { kana: "助", title: "Help and emergencies", sub: "Next lesson · travel" };
+const NEXT = { kana: "家", title: "Family and work", sub: "Next lesson · daily conversation" };
 
 /* What the voice reads. Kanji help the phone's voice split words, so particles like は are said "wa". */
 const SAY = {
@@ -481,7 +512,26 @@ const SAY = {
   "どようびはちょっと…にちようびはどうですか": "土曜日はちょっと…日曜日はどうですか",
   "いいですよ。なんじにしますか": "いいですよ。何時にしますか",
   "ごごさんじはどうですか": "午後三時はどうですか",
-  "たのしみです！": "楽しみです！"
+  "たのしみです！": "楽しみです！",
+  "たすけて！": "助けて！",
+  "きゅうきゅうしゃをよんでください": "救急車を呼んでください",
+  "けいさつをよんでください": "警察を呼んでください",
+  "じしん": "地震",
+  "えいごがはなせるひとはいますか": "英語が話せる人はいますか",
+  "ゆっくりおねがいします": "ゆっくりお願いします",
+  "さいふをなくしました": "財布をなくしました",
+  "すみません！さいふをなくしました": "すみません！財布をなくしました",
+  "パスポートをなくしました": "パスポートをなくしました",
+  "こうばんはどこですか": "交番はどこですか",
+  "ぐあいがわるいです": "具合が悪いです",
+  "あたまがいたいです": "頭が痛いです",
+  "おなかがいたいです": "お腹が痛いです",
+  "ねつがあります": "熱があります",
+  "びょういんはどこですか": "病院はどこですか",
+  "おだいじに": "お大事に",
+  "どこでなくしましたか": "どこでなくしましたか",
+  "たぶんでんしゃのなかです": "たぶん電車の中です",
+  "わかりました。えきにでんわします": "分かりました。駅に電話します"
 };
 const spoken = jp => SAY[jp] || jp;
 
@@ -848,7 +898,33 @@ const CONVOS = [
     ["Yuki","がんばって ください！","頑張ってください！","Ganbatte kudasai!","Good luck!"],
     ["Mo","ありがとう。じゃあ、にちようび に！","ありがとう。じゃあ、日曜日に！","Arigatō. Jā, nichiyōbi ni!","Thanks. See you Sunday!"],
     ["Yuki","はい、にちようび に。じゃあ、また！","はい、日曜日に。じゃあ、また！","Hai, nichiyōbi ni. Jā, mata!","Yes, Sunday. See you!"],
-    ["Mo","またね！","またね！","Mata ne!","See you!"] ]}
+    ["Mo","またね！","またね！","Mata ne!","See you!"] ]},
+  { lesson: 9, title: "A lost wallet and a headache", setting: "Mo loses a wallet on the train and asks at a police box, then visits a drugstore feeling unwell.", lines: [
+    ["Mo","すみません！たすけて ください。","すみません！助けてください。","Sumimasen! Tasukete kudasai.","Excuse me! Please help me."],
+    ["Officer","どう しましたか。","どうしましたか。","Dō shimashita ka?","What happened?"],
+    ["Mo","さいふ を なくしました。","財布をなくしました。","Saifu o nakushimashita.","I lost my wallet."],
+    ["Officer","どこ で なくしましたか。","どこでなくしましたか。","Doko de nakushimashita ka?","Where did you lose it?"],
+    ["Mo","たぶん でんしゃ の なか です。","たぶん電車の中です。","Tabun densha no naka desu.","Probably on the train."],
+    ["Officer","なんじ ごろ ですか。","何時ごろですか。","Nan-ji goro desu ka?","About what time?"],
+    ["Mo","ごご にじ ごろ です。","午後二時ごろです。","Gogo ni-ji goro desu.","Around 2 p.m."],
+    ["Officer","どんな さいふ ですか。","どんな財布ですか。","Donna saifu desu ka?","What kind of wallet is it?"],
+    ["Mo","くろい さいふ です。カード と げんきん が あります。","黒い財布です。カードと現金があります。","Kuroi saifu desu. Kādo to genkin ga arimasu.","A black wallet. It has cards and cash in it."],
+    ["Officer","わかりました。この かみ に おなまえ と でんわ ばんごう を かいて ください。","分かりました。この紙にお名前と電話番号を書いてください。","Wakarimashita. Kono kami ni o-namae to denwa bangō o kaite kudasai.","Understood. Please write your name and phone number on this paper."],
+    ["Mo","すみません、ゆっくり おねがいします。","すみません、ゆっくりお願いします。","Sumimasen, yukkuri onegaishimasu.","Sorry, slowly please."],
+    ["Officer","おなまえ と、でんわ ばんごう を、かいて ください。","お名前と、電話番号を、書いてください。","O-namae to… denwa bangō o… kaite kudasai.","Your name… and phone number… please write them."],
+    ["Mo","はい、わかりました。","はい、分かりました。","Hai, wakarimashita.","Okay, I understand."],
+    ["Officer","えき に でんわ します。しょうしょう おまち ください。","駅に電話します。少々お待ちください。","Eki ni denwa shimasu. Shōshō o-machi kudasai.","I'll call the station. Please wait a moment."],
+    ["Officer","ありました！えき に あります よ。","ありました！駅にありますよ。","Arimashita! Eki ni arimasu yo.","They found it! It's at the station."],
+    ["Mo","ほんとう ですか！よかった！","本当ですか！良かった！","Hontō desu ka! Yokatta!","Really? Thank goodness!"],
+    ["Mo","ほんとう に ありがとう ございます。","本当にありがとうございます。","Hontō ni arigatō gozaimasu.","Thank you so much."],
+    ["Mo","すみません、ちょっと ぐあい が わるい です。","すみません、ちょっと具合が悪いです。","Sumimasen, chotto guai ga warui desu.","Excuse me, I feel a bit unwell."],
+    ["Pharmacist","どう しましたか。","どうしましたか。","Dō shimashita ka?","What's wrong?"],
+    ["Mo","あたま が いたい です。ねつ も あります。","頭が痛いです。熱もあります。","Atama ga itai desu. Netsu mo arimasu.","I have a headache. I have a fever too."],
+    ["Pharmacist","この くすり を どうぞ。いちにち さんかい です。","この薬をどうぞ。一日三回です。","Kono kusuri o dōzo. Ichinichi sankai desu.","Here's this medicine. Three times a day."],
+    ["Mo","いちにち さんかい ですね。","一日三回ですね。","Ichinichi sankai desu ne.","Three times a day."],
+    ["Pharmacist","よく ならなかったら、びょういん に いって ください。","良くならなかったら、病院に行ってください。","Yoku naranakattara, byōin ni itte kudasai.","If you don't get better, please go to a hospital."],
+    ["Mo","はい、わかりました。ありがとう ございます。","はい、分かりました。ありがとうございます。","Hai, wakarimashita. Arigatō gozaimasu.","Okay, I understand. Thank you."],
+    ["Pharmacist","おだいじに。","お大事に。","O-daiji ni.","Take care of yourself."] ]}
 ];
 
 /* ---------- Listen (podcast mode): words or conversations ---------- */
